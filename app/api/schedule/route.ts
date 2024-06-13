@@ -1,4 +1,4 @@
-// pages/api/schedule.ts
+// /api/schedule/route.ts
 
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
@@ -28,9 +28,9 @@ export async function GET(req: NextApiRequest) {
   }
 }
 
-export async function POST(req: NextApiRequest) {
+export async function POST(request: Request) {
   try {
-    const { day, recipeId } = await req.body;
+    const { day, recipeId } = await request.json();
     const existingEntry = await prisma.schedule.findFirst({
       where: { day, recipeId },
     });

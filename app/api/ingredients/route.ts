@@ -19,9 +19,9 @@ export async function GET(req: NextApiRequest) {
   }
 }
 
-export async function POST(req: NextApiRequest) {
+export async function POST(request: Request) {
   try {
-    const { name } = req.body;
+    const { name } = await request.json();
     const ingredient = await prisma.ingredient.create({
       data: { name },
     });
