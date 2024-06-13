@@ -1,4 +1,5 @@
-"use client";
+// RecipeForm.jsx
+
 import { useState } from "react";
 
 const RecipeForm = ({ onRecipeAdded }) => {
@@ -10,7 +11,7 @@ const RecipeForm = ({ onRecipeAdded }) => {
     setIngredients([...ingredients, { name: "", quantity: "" }]);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await fetch("/api/recipes", {
       method: "POST",
@@ -21,6 +22,18 @@ const RecipeForm = ({ onRecipeAdded }) => {
     });
     if (response.ok) {
       onRecipeAdded(); // Call callback to fetch updated recipes
+      setTitle("");
+      setDescription("");
+      setIngredients([{ name: "", quantity: "" }]);
+    }
+  };
+
+  const handleDeleteRecipe = async (recipeId) => {
+    const response = await fetch(`/api/recipes/${recipeId}`, {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      onRecipeAdded(); // Refresh recipes list
     }
   };
 
