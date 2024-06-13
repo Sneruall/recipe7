@@ -30,10 +30,16 @@ const Schedule = () => {
 
   // Function to add recipe to a specific day
   const addRecipeToDay = (recipe, day) => {
-    setSchedule((prevSchedule) => ({
-      ...prevSchedule,
-      [day]: [...prevSchedule[day], recipe],
-    }));
+    setSchedule((prevSchedule) => {
+      // Check if the recipe is already in the schedule for the specified day
+      if (prevSchedule[day].some((r) => r.id === recipe.id)) {
+        return prevSchedule;
+      }
+      return {
+        ...prevSchedule,
+        [day]: [...prevSchedule[day], recipe],
+      };
+    });
   };
 
   // Function to remove recipe from a specific day
@@ -44,7 +50,7 @@ const Schedule = () => {
     }));
   };
 
-  // Function to render recipes with add/remove buttons
+  // Function to render recipes with add buttons
   const renderRecipes = () => {
     return recipes.map((recipe) => (
       <div key={recipe.id}>
