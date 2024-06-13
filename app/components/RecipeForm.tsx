@@ -1,8 +1,7 @@
 "use client";
-
 import { useState } from "react";
 
-const RecipeForm = () => {
+const RecipeForm = ({ onRecipeAdded }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [ingredients, setIngredients] = useState([{ name: "", quantity: "" }]);
@@ -21,7 +20,7 @@ const RecipeForm = () => {
       body: JSON.stringify({ title, description, ingredients }),
     });
     if (response.ok) {
-      // Handle success
+      onRecipeAdded(); // Call callback to fetch updated recipes
     }
   };
 

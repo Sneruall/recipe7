@@ -1,45 +1,58 @@
-"use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const GroceryList = () => {
   const [ingredients, setIngredients] = useState([]);
 
   useEffect(() => {
     const fetchSchedule = async () => {
-      const response = await fetch("/api/schedule");
-      const schedule = await response.json();
+      try {
+        const response = await fetch("/api/schedule");
+        const schedule = await response.json();
 
-      let allIngredients = [];
-      for (const item of schedule) {
-        allIngredients = [...allIngredients, ...item.recipe.ingredients];
+        let allIngredients = [];
+
+        // Iterate over each day's recipes in the schedule
+        Object.values(schedule).forEach((recipes) => {
+          recipes.forEach((recipe) => {
+            // Iterate over each ingredient in the recipe
+            recipe.ingredients.forEach((ingredient) => {
+              // Check if the ingredient already exists in allIngredients
+              const existingIngredient = allIngredients.find(
+                (i) => i.name === ingredient.name
+              );
+
+              if (existingIngredient) {
+                // If exists, update quantity
+                existingIngredient.quantity += `, ${ingredient.quantity}`;
+              } else {
+                // If not exists, add to allIngredients
+                allIngredients.push({ ...ingredient });
+              }
+            });
+          });
+        });
+
+        // Set the combined list of ingredients
+        setIngredients(allIngredients);
+      } catch (error) {
+        console.error("Error fetching schedule:", error);
       }
-
-      setIngredients(allIngredients);
     };
 
     fetchSchedule();
   }, []);
 
-  const ingredientMap = ingredients.reduce((acc, ingredient) => {
-    if (acc[ingredient.name]) {
-      acc[ingredient.name].quantity += `, ${ingredient.quantity}`;
-    } else {
-      acc[ingredient.name] = {
-        name: ingredient.name,
-        quantity: ingredient.quantity,
-      };
-    }
-    return acc;
-  }, {});
-
   return (
-    <ul>
-      {Object.values(ingredientMap).map((ingredient, index) => (
-        <li key={index}>
-          {ingredient.name}: {ingredient.quantity}
-        </li>
-      ))}
-    </ul>
+    <div>
+      <h2>Grocery List</h2>
+      <ul>
+        {ingredients.map((ingredient, index) => (
+          <li key={index}>
+            {ingredient.name}: {ingredient.quantity}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 
