@@ -1,5 +1,3 @@
-// GroceryList.jsx
-
 import { useEffect, useState } from "react";
 
 const GroceryList = () => {
@@ -8,33 +6,36 @@ const GroceryList = () => {
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await fetch("/api/recipes");
-        const recipes = await response.json();
+        const response = await fetch("/api/schedule");
+        const schedule = await response.json();
 
         let allIngredients = [];
 
-        // Iterate over each recipe's ingredients
-        recipes.forEach((recipe) => {
-          recipe.ingredients.forEach((ingredient) => {
-            // Check if the ingredient already exists in allIngredients
-            const existingIngredient = allIngredients.find(
-              (i) => i.id === ingredient.id
-            );
+        // Iterate over each day's recipes in the schedule
+        Object.values(schedule).forEach((recipes) => {
+          recipes.forEach((recipe) => {
+            // Iterate over each ingredient in the recipe
+            recipe.ingredients.forEach((ingredient) => {
+              // Check if the ingredient already exists in allIngredients
+              const existingIngredient = allIngredients.find(
+                (i) => i.id === ingredient.id
+              );
 
-            if (existingIngredient) {
-              // If exists, update quantity
-              existingIngredient.quantity += `, ${ingredient.quantity}`;
-            } else {
-              // If not exists, add to allIngredients
-              allIngredients.push({ ...ingredient });
-            }
+              if (existingIngredient) {
+                // If exists, update quantity
+                existingIngredient.quantity += `, ${ingredient.quantity}`;
+              } else {
+                // If not exists, add to allIngredients
+                allIngredients.push({ ...ingredient });
+              }
+            });
           });
         });
 
         // Set the combined list of ingredients
         setIngredients(allIngredients);
       } catch (error) {
-        console.error("Error fetching ingredients:", error);
+        console.error("Error fetching schedule:", error);
       }
     };
 

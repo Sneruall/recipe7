@@ -5,9 +5,22 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   const schedule = await prisma.schedule.findMany({
-    include: { recipe: true },
+    include: {
+      recipe: {
+        include: { ingredients: true },
+      },
+    },
   });
-  return NextResponse.json(schedule);
+  const formattedSchedule = schedule.reduce((acc, curr) => {
+    const day = curr.day;
+    if (!acc[day]) {
+      acc[day] = [];
+    }
+    acc[day].push(curr.recipe);
+    return acc;
+  }, {});
+
+  return NextResponse.json(formattedSchedule);
 }
 
 export async function POST(request: NextRequest) {
