@@ -1,79 +1,68 @@
+// components/GroceryList.tsx
+
 import { useEffect, useState } from "react";
 
 const GroceryList = () => {
+  const [schedule, setSchedule] = useState({});
   const [ingredients, setIngredients] = useState([]);
+  const [selectedDays, setSelectedDays] = useState([]);
+
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      const response = await fetch("/api/schedule", {
+        method: "GET",
+      });
+      const data = await response.json();
+      setSchedule(data);
+    };
+    fetchSchedule();
+  }, []);
 
   useEffect(() => {
     const fetchIngredients = async () => {
-      try {
-        const response = await fetch("/api/schedule");
-        const schedule = await response.json();
+      const allIngredients = {};
 
-        let allIngredients = [];
-
-        // Iterate over each day's recipes in the schedule
-        Object.values(schedule).forEach((recipes) => {
-          recipes.forEach((recipe) => {
-            // Iterate over each ingredient in the recipe
-            recipe.ingredients.forEach((ingredient) => {
-              // Check if the ingredient already exists in allIngredients
-              const existingIngredient = allIngredients.find(
-                (i) => i.id === ingredient.id
-              );
-
-              if (existingIngredient) {
-                // If exists, update quantity
-                existingIngredient.quantity += `, ${ingredient.quantity}`;
-              } else {
-                // If not exists, add to allIngredients
-                allIngredients.push({ ...ingredient });
-              }
-            });
-          });
-        });
-
-        // Set the combined list of ingredients
-        setIngredients(allIngredients);
-      } catch (error) {
-        console.error("Error fetching schedule:", error);
+      for (const day of selectedDays) {
+        for (const recipe of schedule[day] || []) {
+          for (const ingredient of recipe.ingredients) {
+            if (allIngredients[ingredient.id]) {
+              allIngredients[ingredient.id].quantity += ingredient.quantity;
+            } else {
+              allIngredients[ingredient.id] = { ...ingredient };
+            }
+          }
+        }
       }
+
+      setIngredients(Object.values(allIngredients));
     };
 
     fetchIngredients();
-  }, []);
+  }, [selectedDays, schedule]);
 
-  const handleDeleteIngredient = async (ingredientId) => {
-    // Check if the ingredient is used in any recipe
-    const response = await fetch(`/api/recipes/ingredient/${ingredientId}`);
-    const isUsedInRecipes = await response.json();
-
-    if (!isUsedInRecipes) {
-      // If not used in any recipe, delete the ingredient
-      const deleteResponse = await fetch(`/api/ingredients/${ingredientId}`, {
-        method: "DELETE",
-      });
-      if (deleteResponse.ok) {
-        // Refresh ingredients list
-        const updatedIngredients = ingredients.filter(
-          (ingredient) => ingredient.id !== ingredientId
-        );
-        setIngredients(updatedIngredients);
-      }
-    } else {
-      alert("Cannot delete ingredient. It is used in one or more recipes.");
-    }
+  const handleDayChange = (day) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
   };
 
   return (
     <div>
       <h2>Grocery List</h2>
+      {Object.keys(schedule).map((day) => (
+        <label key={day}>
+          <input
+            type="checkbox"
+            checked={selectedDays.includes(day)}
+            onChange={() => handleDayChange(day)}
+          />
+          {day}
+        </label>
+      ))}
       <ul>
-        {ingredients.map((ingredient, index) => (
-          <li key={index}>
-            {ingredient.name}: {ingredient.quantity}{" "}
-            <button onClick={() => handleDeleteIngredient(ingredient.id)}>
-              Delete
-            </button>
+        {ingredients.map((ingredient) => (
+          <li key={ingredient.id}>
+            {ingredient.name}: {ingredient.quantity}
           </li>
         ))}
       </ul>

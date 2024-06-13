@@ -1,3 +1,5 @@
+// schema.prisma
+
 datasource db {
   provider = "postgresql"
   url      = env("POSTGRES_URL")
@@ -7,20 +9,28 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Ingredient {
+  id      Int                @id @default(autoincrement())
+  name    String             @unique
+  recipes RecipeIngredient[]
+}
+
 model Recipe {
-  id          Int          @id @default(autoincrement())
-  title       String
+  id          Int                @id @default(autoincrement())
+  name        String
   description String
-  ingredients Ingredient[]
+  duration    Int
+  ingredients RecipeIngredient[]
   Schedule    Schedule[]
 }
 
-model Ingredient {
-  id       Int    @id @default(autoincrement())
-  name     String
-  quantity String
-  recipeId Int
-  recipe   Recipe @relation(fields: [recipeId], references: [id])
+model RecipeIngredient {
+  id           Int        @id @default(autoincrement())
+  quantity     Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId Int
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  recipeId     Int
 }
 
 model Schedule {

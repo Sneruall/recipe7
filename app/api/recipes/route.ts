@@ -1,77 +1,64 @@
-import { NextRequest, NextResponse } from "next/server";
+// api/recipes/route.ts
+
+import { NextApiRequest } from "next";
 import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
-  const recipes = await prisma.recipe.findMany({
-    include: { ingredients: true },
-  });
-  return NextResponse.json(recipes);
-}
-
-export async function POST(request: NextRequest) {
-  const { title, description, ingredients } = await request.json();
-  const recipe = await prisma.recipe.create({
-    data: {
-      title,
-      description,
-      ingredients: {
-        create: ingredients,
-      },
-    },
-    include: { ingredients: true },
-  });
-  return NextResponse.json(recipe, { status: 201 });
-}
-
-export async function DELETE(request: NextRequest) {
-  const { id } = request.query;
-
+export async function GET(req: NextApiRequest) {
   try {
-    // Check if the recipe exists
-    const existingRecipe = await prisma.recipe.findUnique({
-      where: { id: Number(id) },
-      include: { ingredients: true },
+    const recipes = await prisma.recipe.findMany({
+      include: { ingredients: { include: { ingredient: true } } },
     });
+    return NextResponse.json(recipes, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching recipes:", error);
+    return NextResponse.json(
+      { error: "Error fetching recipes" },
+      { status: 500 }
+    );
+  }
+}
 
-    if (!existingRecipe) {
-      return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
-    }
-
-    // Check if any other recipe is using the ingredients of this recipe
-    const usedIngredients = await prisma.recipe.findFirst({
-      where: {
-        id: { not: Number(id) },
+export async function POST(req: NextApiRequest) {
+  try {
+    const { name, description, duration, ingredients } = req.body;
+    const recipe = await prisma.recipe.create({
+      data: {
+        name,
+        description,
+        duration,
         ingredients: {
-          some: {
-            id: {
-              in: existingRecipe.ingredients.map((ingredient) => ingredient.id),
-            },
-          },
+          create: ingredients.map((ing) => ({
+            ingredientId: ing.ingredientId,
+            quantity: ing.quantity,
+          })),
         },
       },
+      include: { ingredients: { include: { ingredient: true } } },
     });
+    return NextResponse.json(recipe, { status: 201 });
+  } catch (error) {
+    console.error("Error creating recipe:", error);
+    return NextResponse.json(
+      { error: "Error creating recipe" },
+      { status: 500 }
+    );
+  }
+}
 
-    if (usedIngredients) {
-      return NextResponse.json(
-        {
-          error: "Cannot delete recipe. Ingredients are used in other recipes.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Delete the recipe
+export async function DELETE(req: NextApiRequest) {
+  try {
+    const { id } = req.query;
     await prisma.recipe.delete({
       where: { id: Number(id) },
     });
-
-    return NextResponse.json({ message: "Recipe deleted successfully" });
+    return NextResponse.json({}, { status: 204 });
   } catch (error) {
     console.error("Error deleting recipe:", error);
     return NextResponse.json(
-      { error: "An error occurred while deleting the recipe" },
+      { error: "Error deleting recipe" },
       { status: 500 }
     );
   }

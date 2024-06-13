@@ -1,14 +1,38 @@
-// RecipeForm.jsx
+// components/RecipeForm.tsx
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const RecipeForm = ({ onRecipeAdded }) => {
-  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [ingredients, setIngredients] = useState([{ name: "", quantity: "" }]);
+  const [duration, setDuration] = useState("");
+  const [ingredients, setIngredients] = useState([]);
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
 
-  const addIngredient = () => {
-    setIngredients([...ingredients, { name: "", quantity: "" }]);
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      const response = await fetch("/api/ingredients", {
+        method: "GET",
+      });
+      const data = await response.json();
+      setIngredients(data);
+    };
+    fetchIngredients();
+  }, []);
+
+  const handleAddIngredient = (ingredient) => {
+    if (!selectedIngredients.find((i) => i.id === ingredient.id)) {
+      setSelectedIngredients([
+        ...selectedIngredients,
+        { ...ingredient, quantity: 1 },
+      ]);
+    }
+  };
+
+  const handleQuantityChange = (id, quantity) => {
+    setSelectedIngredients((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, quantity } : i))
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -18,22 +42,22 @@ const RecipeForm = ({ onRecipeAdded }) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title, description, ingredients }),
+      body: JSON.stringify({
+        name,
+        description,
+        duration: parseInt(duration),
+        ingredients: selectedIngredients.map(({ id, quantity }) => ({
+          ingredientId: id,
+          quantity,
+        })),
+      }),
     });
     if (response.ok) {
-      onRecipeAdded(); // Call callback to fetch updated recipes
-      setTitle("");
+      setName("");
       setDescription("");
-      setIngredients([{ name: "", quantity: "" }]);
-    }
-  };
-
-  const handleDeleteRecipe = async (recipeId) => {
-    const response = await fetch(`/api/recipes/${recipeId}`, {
-      method: "DELETE",
-    });
-    if (response.ok) {
-      onRecipeAdded(); // Refresh recipes list
+      setDuration("");
+      setSelectedIngredients([]);
+      onRecipeAdded();
     }
   };
 
@@ -41,42 +65,50 @@ const RecipeForm = ({ onRecipeAdded }) => {
     <form onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Recipe Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
       />
       <textarea
         placeholder="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      {ingredients.map((ingredient, index) => (
-        <div key={index}>
-          <input
-            type="text"
-            placeholder="Ingredient"
-            value={ingredient.name}
-            onChange={(e) => {
-              const newIngredients = [...ingredients];
-              newIngredients[index].name = e.target.value;
-              setIngredients(newIngredients);
-            }}
-          />
-          <input
-            type="text"
-            placeholder="Quantity"
-            value={ingredient.quantity}
-            onChange={(e) => {
-              const newIngredients = [...ingredients];
-              newIngredients[index].quantity = e.target.value;
-              setIngredients(newIngredients);
-            }}
-          />
-        </div>
-      ))}
-      <button type="button" onClick={addIngredient}>
-        Add Ingredient
-      </button>
+      <input
+        type="number"
+        placeholder="Duration (minutes)"
+        value={duration}
+        onChange={(e) => setDuration(e.target.value)}
+      />
+      <div>
+        <h3>Ingredients</h3>
+        {ingredients.map((ingredient) => (
+          <div key={ingredient.id}>
+            {ingredient.name}{" "}
+            <button
+              type="button"
+              onClick={() => handleAddIngredient(ingredient)}
+            >
+              Add
+            </button>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h3>Selected Ingredients</h3>
+        {selectedIngredients.map((ingredient) => (
+          <div key={ingredient.id}>
+            {ingredient.name}
+            <input
+              type="number"
+              value={ingredient.quantity}
+              onChange={(e) =>
+                handleQuantityChange(ingredient.id, parseInt(e.target.value))
+              }
+            />
+          </div>
+        ))}
+      </div>
       <button type="submit">Save Recipe</button>
     </form>
   );
