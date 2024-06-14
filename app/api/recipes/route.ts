@@ -32,6 +32,7 @@ export async function POST(request: Request) {
         ingredients: {
           create: ingredients.map((ing) => ({
             ingredientId: ing.ingredientId,
+            name: ing.name,
             quantity: ing.quantity,
           })),
         },

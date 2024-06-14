@@ -1,5 +1,3 @@
-// components/RecipeForm.tsx
-
 import { useState, useEffect } from "react";
 
 const RecipeForm = ({ onRecipeAdded }) => {
@@ -35,8 +33,29 @@ const RecipeForm = ({ onRecipeAdded }) => {
     );
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (
+      !name ||
+      !description ||
+      !duration ||
+      selectedIngredients.length === 0
+    ) {
+      alert("Please fill out all fields.");
+      return;
+    }
+
+    // Check if all selectedIngredients have name and quantity
+    const hasIncompleteIngredients = selectedIngredients.some(
+      (ingredient) => !ingredient.name || !ingredient.quantity
+    );
+
+    if (hasIncompleteIngredients) {
+      alert("Please fill out all selected ingredients with name and quantity.");
+      return;
+    }
+
     const response = await fetch("/api/recipes", {
       method: "POST",
       headers: {
@@ -46,18 +65,24 @@ const RecipeForm = ({ onRecipeAdded }) => {
         name,
         description,
         duration: parseInt(duration),
-        ingredients: selectedIngredients.map(({ id, quantity }) => ({
+        ingredients: selectedIngredients.map(({ id, name, quantity }) => ({
           ingredientId: id,
+          name, // Include name in the request
           quantity,
         })),
       }),
     });
+
     if (response.ok) {
       setName("");
       setDescription("");
       setDuration("");
       setSelectedIngredients([]);
       onRecipeAdded();
+    } else {
+      const data = await response.json();
+      console.error("Error creating recipe:", data.error);
+      alert("Failed to create recipe. Please try again.");
     }
   };
 

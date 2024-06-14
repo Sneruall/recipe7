@@ -26,11 +26,13 @@ model Recipe {
 
 model RecipeIngredient {
   id           Int        @id @default(autoincrement())
+  name         String
   quantity     Int
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
   ingredientId Int
   recipe       Recipe     @relation(fields: [recipeId], references: [id])
   recipeId     Int
+  // Include name from Ingredient model
 }
 
 model Schedule {
