@@ -14,6 +14,8 @@ const Schedule = () => {
     Sunday: [],
   });
 
+  console.log(schedule);
+
   useEffect(() => {
     const fetchRecipes = async () => {
       const response = await fetch("/api/recipes", {
@@ -28,7 +30,15 @@ const Schedule = () => {
         method: "GET",
       });
       const data = await response.json();
-      setSchedule(data);
+      // Check if data is not empty
+      if (Object.keys(data).length > 0) {
+        console.log("set schedule");
+        // Update schedule state by merging existing state with fetched data
+        setSchedule((prevSchedule) => ({
+          ...prevSchedule,
+          ...data,
+        }));
+      }
     };
 
     fetchRecipes();
