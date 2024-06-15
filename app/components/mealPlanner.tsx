@@ -36,16 +36,27 @@ export default function MealPlannerPage() {
       );
       if (!selectedRecipe) return alert("Recipe not found");
 
+      // Generate a unique ID for the new PlannedMeal
+      const newPlannedMealId = `plannedMeal_${Date.now()}_${Math.floor(
+        Math.random() * 1000
+      )}`;
+
       const newPlannedMeal: PlannedMeal = {
-        _id: "", // Generate or fetch _id if necessary
+        _id: newPlannedMealId, // Ensure a unique _id is generated
         _type: "plannedMeal", // Ensure _type is included with the correct value
         day,
         mealType,
         recipe: selectedRecipe,
       };
 
-      const createdMeal = await client.create(newPlannedMeal);
-      setPlannedMeals([...plannedMeals, createdMeal]);
+      // Use client.create with the newPlannedMeal
+      try {
+        await client.create(newPlannedMeal);
+        setPlannedMeals([...plannedMeals, newPlannedMeal]);
+      } catch (error) {
+        console.error("Error creating planned meal:", error.message);
+        // Handle error appropriately, such as showing an alert to the user
+      }
     }
   };
 
