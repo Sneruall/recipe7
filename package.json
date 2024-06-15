@@ -6,16 +6,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "updatesanity": "npx sanity deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.15.0",
+    "@sanity/client": "^6.20.0",
+    "@sanity/image-url": "^1.0.2",
+    "@sanity/vision": "^3.46.1",
     "@vercel/postgres": "^0.8.0",
     "next": "14.2.4",
+    "next-sanity": "^9.3.10",
     "prisma": "^5.15.0",
     "react": "^18",
     "react-beautiful-dnd": "^13.1.1",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "sanity": "^3.46.1",
+    "styled-components": "^6.1.11"
   },
   "devDependencies": {
     "@types/node": "^20",
