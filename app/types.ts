@@ -12,6 +12,9 @@ export interface Ingredient {
 export interface Recipe {
   _id: string;
   name: string;
+  slug: {
+    current: string;
+  };
   description: string;
   ingredients: Ingredient[];
   body: any[];
