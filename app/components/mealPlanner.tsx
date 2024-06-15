@@ -91,7 +91,7 @@ export default function MealPlannerPage() {
 
   return (
     <div className="">
-      <h1 className="text-4xl font-bold mb-8">Meal Planner</h1>
+      <h2 className="text-4xl font-bold mb-8">Meal Planner</h2>
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => (
           <div key={day} className="bg-white p-4 rounded-lg shadow mb-8">
