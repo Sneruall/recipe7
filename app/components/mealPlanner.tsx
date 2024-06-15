@@ -1,73 +1,19 @@
 "use client";
 
-// mealPlanner.tsx
 import { useState, useEffect } from "react";
 import { sanityFetch, client } from "../../utils/sanity/client";
-import { MealPlanner, Recipe } from "../types";
-import Link from "next/link";
-
-const MEAL_PLANNER_QUERY = `*[_type == "mealPlanner"]{
-    _id,
-    week,
-    days[]{
-      day,
-      meals{
-        breakfast->{_id, name},
-        lunch->{_id, name},
-        dinner->{_id, name},
-        dessert->{_id, name},
-      }
-    }
-  }`;
-
-const DEFAULT_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const DEFAULT_MEALS = {
-  breakfast: null,
-  lunch: null,
-  dinner: null,
-  dessert: null,
-};
+import { Recipe, PlannedMeal } from "../types";
 
 export default function MealPlannerPage() {
-  const [mealPlanner, setMealPlanner] = useState<MealPlanner | null>(null);
+  const [plannedMeals, setPlannedMeals] = useState<PlannedMeal[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   useEffect(() => {
-    async function fetchMealPlanner() {
-      const data = await sanityFetch<MealPlanner[]>({
-        query: MEAL_PLANNER_QUERY,
+    async function fetchPlannedMeals() {
+      const data = await sanityFetch<PlannedMeal[]>({
+        query: `*[_type == "plannedMeal"]{_id, day, mealType, recipe->{_id, name}}`,
       });
-      if (data && data.length > 0) {
-        const fetchedMealPlanner = data[0];
-        const updatedDays = DEFAULT_DAYS.map((defaultDay) => {
-          const existingDay = fetchedMealPlanner.days.find(
-            (day) => day.day === defaultDay
-          );
-          if (existingDay) {
-            return existingDay;
-          } else {
-            return {
-              day: defaultDay,
-              meals: { ...DEFAULT_MEALS },
-            };
-          }
-        });
-
-        setMealPlanner({
-          ...fetchedMealPlanner,
-          days: updatedDays,
-        });
-      } else {
-        // Initialize a default meal planner if none exists
-        setMealPlanner({
-          _id: "",
-          week: "Default Week",
-          days: DEFAULT_DAYS.map((day) => ({
-            day,
-            meals: { ...DEFAULT_MEALS },
-          })),
-        });
-      }
+      setPlannedMeals(data);
     }
 
     async function fetchRecipes() {
@@ -77,11 +23,11 @@ export default function MealPlannerPage() {
       setRecipes(recipeData);
     }
 
-    fetchMealPlanner();
+    fetchPlannedMeals();
     fetchRecipes();
   }, []);
 
-  const handleAddRecipe = async (day: string, mealType: string) => {
+  const handleAddMeal = async (day: string, mealType: string) => {
     const selectedRecipeId = prompt("Enter recipe ID to add:"); // Simplified recipe selection for the example
 
     if (selectedRecipeId) {
@@ -90,82 +36,69 @@ export default function MealPlannerPage() {
       );
       if (!selectedRecipe) return alert("Recipe not found");
 
-      const updatedDays = mealPlanner.days.map((d) =>
-        d.day === day
-          ? { ...d, meals: { ...d.meals, [mealType]: selectedRecipe } }
-          : d
-      );
+      const newPlannedMeal: PlannedMeal = {
+        _id: "", // Generate or fetch _id if necessary
+        _type: "plannedMeal", // Ensure _type is included with the correct value
+        day,
+        mealType,
+        recipe: selectedRecipe,
+      };
 
-      if (mealPlanner._id) {
-        await client.patch(mealPlanner._id).set({ days: updatedDays }).commit();
-      } else {
-        const newMealPlanner = await client.create({
-          ...mealPlanner,
-          days: updatedDays,
-          _type: "mealPlanner",
-        });
-        setMealPlanner(newMealPlanner);
-      }
+      const createdMeal = await client.create(newPlannedMeal);
+      setPlannedMeals([...plannedMeals, createdMeal]);
     }
   };
 
-  const handleRemoveRecipe = async (day: string, mealType: string) => {
-    const updatedDays = mealPlanner.days.map((d) =>
-      d.day === day ? { ...d, meals: { ...d.meals, [mealType]: null } } : d
+  const handleRemoveMeal = async (id: string) => {
+    await client.delete(id);
+    setPlannedMeals(plannedMeals.filter((meal) => meal._id !== id));
+  };
+
+  const getPlannedMeal = (day: string, mealType: string) => {
+    return plannedMeals.find(
+      (meal) => meal.day === day && meal.mealType === mealType
     );
-
-    if (mealPlanner._id) {
-      await client.patch(mealPlanner._id).set({ days: updatedDays }).commit();
-    } else {
-      const newMealPlanner = await client.create({
-        ...mealPlanner,
-        days: updatedDays,
-        _type: "mealPlanner",
-      });
-      setMealPlanner(newMealPlanner);
-    }
   };
-
-  if (!mealPlanner) return <div>Loading...</div>;
 
   return (
     <main className="container mx-auto p-12">
       <h1 className="text-4xl font-bold mb-8">Meal Planner</h1>
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-        {DEFAULT_DAYS.map((defaultDay) => {
-          const day = mealPlanner.days.find((d) => d.day === defaultDay);
-          return (
-            <div key={defaultDay} className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-2xl font-semibold mb-4">{defaultDay}</h2>
-              <ul>
-                {["breakfast", "lunch", "dinner", "dessert"].map((mealType) => (
-                  <li key={mealType} className="mb-2">
-                    <span className="font-semibold">{mealType}: </span>
-                    {day.meals[mealType] && day.meals[mealType].name ? (
-                      <span>{day.meals[mealType].name}</span>
-                    ) : (
-                      <span>No recipe selected</span>
-                    )}
+        {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => (
+          <div key={day} className="bg-white p-4 rounded-lg shadow mb-8">
+            <h2 className="text-2xl font-semibold mb-4">{day}</h2>
+            <ul>
+              {["Breakfast", "Lunch", "Dinner", "Dessert"].map((mealType) => (
+                <li key={mealType} className="mb-2">
+                  <span className="font-semibold">{mealType}: </span>
+                  {getPlannedMeal(day, mealType) ? (
+                    <span>{getPlannedMeal(day, mealType)?.recipe.name}</span>
+                  ) : (
+                    <span>No recipe selected</span>
+                  )}
+                  <button
+                    onClick={() => handleAddMeal(day, mealType)}
+                    className="ml-2 text-blue-500"
+                  >
+                    Add
+                  </button>
+                  {getPlannedMeal(day, mealType) && (
                     <button
-                      onClick={() => handleAddRecipe(defaultDay, mealType)}
-                      className="ml-2 text-blue-500"
+                      onClick={() =>
+                        handleRemoveMeal(
+                          getPlannedMeal(day, mealType)?._id || ""
+                        )
+                      }
+                      className="ml-2 text-red-500"
                     >
-                      Add
+                      Remove
                     </button>
-                    {day.meals[mealType] && (
-                      <button
-                        onClick={() => handleRemoveRecipe(defaultDay, mealType)}
-                        className="ml-2 text-red-500"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        })}
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </main>
   );

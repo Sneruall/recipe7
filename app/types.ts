@@ -24,22 +24,13 @@ export interface Recipe {
     };
   };
 }
-export interface Meal {
-  breakfast?: Recipe;
-  lunch?: Recipe;
-  dinner?: Recipe;
-  dessert?: Recipe;
-}
 
-export interface Day {
-  day: string;
-  meals: Meal;
-}
-
-export interface MealPlanner {
+export interface PlannedMeal {
   _id: string;
-  week: string;
-  days: Day[];
+  _type: string; // Add _type with the appropriate value
+  day: string;
+  mealType: string;
+  recipe: Recipe;
 }
 
 export interface Shop {

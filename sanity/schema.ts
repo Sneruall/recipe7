@@ -1,5 +1,5 @@
 import { SchemaTypeDefinition, defineType, defineField } from "sanity";
-import { mealPlanner } from "./mealplanner";
+import { plannedMeal } from "./mealplanner";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -152,6 +152,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
         }),
       ],
     }),
-    mealPlanner,
+    plannedMeal,
   ],
 };
