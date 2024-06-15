@@ -7,6 +7,9 @@ import { Recipe, PlannedMeal } from "../types";
 export default function MealPlannerPage() {
   const [plannedMeals, setPlannedMeals] = useState<PlannedMeal[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedMealType, setSelectedMealType] = useState<string | null>(null);
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPlannedMeals() {
@@ -27,45 +30,37 @@ export default function MealPlannerPage() {
     fetchRecipes();
   }, []);
 
-  const handleAddMeal = async (day: string, mealType: string) => {
-    const selectedRecipeId = prompt("Enter recipe ID to add:"); // Simplified recipe selection for the example
+  const handleAddMeal = async () => {
+    if (!selectedDay || !selectedMealType || !selectedRecipeId) return;
 
-    if (selectedRecipeId) {
-      const selectedRecipe = recipes.find(
-        (recipe) => recipe._id === selectedRecipeId
-      );
-      if (!selectedRecipe) return alert("Recipe not found");
+    const selectedRecipe = recipes.find(
+      (recipe) => recipe._id === selectedRecipeId
+    );
+    if (!selectedRecipe) return alert("Recipe not found");
 
-      // Generate a unique ID for the new PlannedMeal
-      const newPlannedMealId = `plannedMeal_${Date.now()}_${Math.floor(
-        Math.random() * 1000
-      )}`;
+    const newPlannedMealId = `plannedMeal_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
-      const newPlannedMeal: Omit<PlannedMeal, "recipe"> & {
-        recipe: { _type: "reference"; _ref: string };
-      } = {
-        _id: newPlannedMealId, // Ensure a unique _id is generated
-        _type: "plannedMeal", // Ensure _type is included with the correct value
-        day,
-        mealType,
-        recipe: {
-          _type: "reference",
-          _ref: selectedRecipe._id,
-        },
-      };
+    const newPlannedMeal: Omit<PlannedMeal, "recipe"> & {
+      recipe: { _type: "reference"; _ref: string };
+    } = {
+      _id: newPlannedMealId,
+      _type: "plannedMeal",
+      day: selectedDay,
+      mealType: selectedMealType,
+      recipe: {
+        _type: "reference",
+        _ref: selectedRecipe._id,
+      },
+    };
 
-      // Use client.create with the newPlannedMeal
-      try {
-        await client.create(newPlannedMeal);
-        // Fetch the newly created meal with the recipe details
-        const createdMeal = await sanityFetch<PlannedMeal>({
-          query: `*[_id == "${newPlannedMealId}"]{_id, day, mealType, recipe->{_id, name}}[0]`,
-        });
-        setPlannedMeals([...plannedMeals, createdMeal]);
-      } catch (error) {
-        console.error("Error creating planned meal:", (error as Error).message);
-        // Handle error appropriately, such as showing an alert to the user
-      }
+    try {
+      await client.create(newPlannedMeal);
+      const createdMeal = await sanityFetch<PlannedMeal>({
+        query: `*[_id == "${newPlannedMealId}"]{_id, day, mealType, recipe->{_id, name}}[0]`,
+      });
+      setPlannedMeals([...plannedMeals, createdMeal]);
+    } catch (error) {
+      console.error("Error creating planned meal:", (error as Error).message);
     }
   };
 
@@ -78,6 +73,12 @@ export default function MealPlannerPage() {
     return plannedMeals.find(
       (meal) => meal.day === day && meal.mealType === mealType
     );
+  };
+
+  const openAddMealDialog = (day: string, mealType: string) => {
+    setSelectedDay(day);
+    setSelectedMealType(mealType);
+    setSelectedRecipeId(null);
   };
 
   return (
@@ -97,7 +98,7 @@ export default function MealPlannerPage() {
                     <span>No recipe selected</span>
                   )}
                   <button
-                    onClick={() => handleAddMeal(day, mealType)}
+                    onClick={() => openAddMealDialog(day, mealType)}
                     className="ml-2 text-blue-500"
                   >
                     Add
@@ -120,6 +121,46 @@ export default function MealPlannerPage() {
           </div>
         ))}
       </div>
+      {selectedDay && selectedMealType && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4">
+              Select Recipe for {selectedDay} - {selectedMealType}
+            </h2>
+            <select
+              value={selectedRecipeId || ""}
+              onChange={(e) => setSelectedRecipeId(e.target.value)}
+              className="block w-full p-2 border border-gray-300 rounded-md mb-4"
+            >
+              <option value="" disabled>
+                Select a recipe
+              </option>
+              {recipes.map((recipe) => (
+                <option key={recipe._id} value={recipe._id}>
+                  {recipe.name}
+                </option>
+              ))}
+            </select>
+            <div className="flex justify-end">
+              <button
+                onClick={handleAddMeal}
+                className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedDay(null);
+                  setSelectedMealType(null);
+                }}
+                className="bg-gray-300 text-black px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
