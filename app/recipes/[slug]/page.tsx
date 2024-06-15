@@ -1,16 +1,18 @@
-import { PortableText, type SanityDocument } from "next-sanity";
+// page.tsx
+import { PortableText } from "next-sanity";
 import imageUrlBuilder from "@sanity/image-url";
 
 import { SanityImageSource } from "@sanity/image-url/lib/types/types";
 import { client, sanityFetch } from "../../../utils/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
+import { Recipe } from "../../types"; // Adjust the path as necessary
 
 // Update the query to fetch a recipe by slug
 const RECIPE_QUERY = `*[
-    _type == "recipe" &&
-    slug.current == $slug
-  ][0]{
+  _type == "recipe" &&
+  slug.current == $slug
+][0]{
   _id,
   name,
   description,
@@ -30,7 +32,7 @@ export default async function RecipePage({
 }: {
   params: { slug: string };
 }) {
-  const recipe = await sanityFetch<SanityDocument>({
+  const recipe = await sanityFetch<Recipe>({
     query: RECIPE_QUERY,
     params,
   });
