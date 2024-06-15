@@ -1,4 +1,4 @@
-import { type SchemaTypeDefinition, defineType, defineField } from "sanity";
+import { SchemaTypeDefinition, defineType, defineField } from "sanity";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -64,26 +64,78 @@ export const schema: { types: SchemaTypeDefinition[] } = {
           of: [
             {
               type: "object",
+              name: "recipeIngredient",
+              title: "Recipe Ingredient",
               fields: [
                 {
-                  name: "name",
-                  title: "Name",
-                  type: "string",
+                  name: "ingredient",
+                  title: "Ingredient",
+                  type: "reference",
+                  to: [{ type: "ingredient" }],
                 },
                 {
                   name: "unit",
                   title: "Unit",
                   type: "string",
+                  options: {
+                    list: [
+                      { title: "Grams", value: "g" },
+                      { title: "Kilograms", value: "kg" },
+                      { title: "Teaspoons", value: "tsp" },
+                      { title: "Tablespoons", value: "tbsp" },
+                      { title: "Pieces", value: "pcs" },
+                      { title: "Milliliters", value: "ml" },
+                      { title: "Liters", value: "l" },
+                      { title: "Cups", value: "cup" },
+                      { title: "Hands", value: "hand" },
+                      // Add more units as needed
+                    ],
+                  },
                 },
                 {
-                  name: "shop",
-                  title: "Shop",
-                  type: "reference",
-                  to: [{ type: "shop" }],
+                  name: "amount",
+                  title: "Amount",
+                  type: "number",
                 },
               ],
+              preview: {
+                select: {
+                  title: "ingredient.name",
+                  subtitle: "amount",
+                  unit: "unit",
+                },
+                prepare({ title, subtitle, unit }) {
+                  return {
+                    title: `${title} (${subtitle} ${unit})`,
+                  };
+                },
+              },
             },
           ],
+        }),
+      ],
+      preview: {
+        select: {
+          title: "name",
+          subtitle: "description",
+        },
+      },
+    }),
+    defineType({
+      name: "ingredient",
+      title: "Ingredient",
+      type: "document",
+      fields: [
+        defineField({
+          name: "name",
+          title: "Name",
+          type: "string",
+        }),
+        defineField({
+          name: "shop",
+          title: "Shop",
+          type: "reference",
+          to: [{ type: "shop" }],
         }),
       ],
     }),
