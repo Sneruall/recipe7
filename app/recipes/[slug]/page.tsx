@@ -6,20 +6,26 @@ import { SanityImageSource } from "@sanity/image-url/lib/types/types";
 import { client, sanityFetch } from "../../../utils/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
-import { Recipe } from "../../types"; // Adjust the path as necessary
+import { Recipe } from "../../types";
 
-// Update the query to fetch a recipe by slug
 const RECIPE_QUERY = `*[
-  _type == "recipe" &&
-  slug.current == $slug
-][0]{
-  _id,
-  name,
-  description,
-  ingredients,
-  body,
-  image
-}`;
+    _type == "recipe" &&
+    slug.current == $slug
+  ][0]{
+    _id,
+    name,
+    description,
+    ingredients[]{
+      _key,
+      amount,
+      unit,
+      ingredient->{
+        name
+      }
+    },
+    body,
+    image
+  }`;
 
 const { projectId, dataset } = client.config();
 const urlFor = (source: SanityImageSource) =>
@@ -69,7 +75,8 @@ export default async function RecipePage({
             <ul className="list-disc pl-5">
               {ingredients.map((ingredient) => (
                 <li key={ingredient._key}>
-                  {ingredient.name} - {ingredient.unit}
+                  {ingredient.ingredient.name} - {ingredient.amount}{" "}
+                  {ingredient.unit}
                 </li>
               ))}
             </ul>

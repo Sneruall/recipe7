@@ -1,22 +1,21 @@
-// types.ts
 export interface Ingredient {
-  _key: string;
+  _id: string;
   name: string;
+}
+
+export interface RecipeIngredient {
+  ingredient: Ingredient;
   unit: string;
-  shop?: {
-    _ref: string;
-    _type: string;
-  };
+  amount: number;
+  _key?: string;
 }
 
 export interface Recipe {
   _id: string;
   name: string;
-  slug: {
-    current: string;
-  };
+  slug: { current: string };
   description: string;
-  ingredients: Ingredient[];
+  ingredients: RecipeIngredient[];
   body: any[];
   image?: {
     asset: {

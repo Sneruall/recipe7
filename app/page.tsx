@@ -1,9 +1,22 @@
 import Link from "next/link";
-import { SanityDocument } from "next-sanity";
 import { sanityFetch } from "../utils/sanity/client";
 import { Recipe } from "./types";
 
-const RECIPES_QUERY = `*[_type == "recipe"]{_id, name, slug, description, ingredients, body}|order(_createdAt desc)`;
+const RECIPES_QUERY = `*[_type == "recipe"]{
+  _id, 
+  name, 
+  slug, 
+  description, 
+  ingredients[]{
+    ingredient->{
+      _id,
+      name
+    }, 
+    unit, 
+    amount
+  }, 
+  body
+}|order(_createdAt desc)`;
 
 export default async function IndexPage() {
   const recipes = await sanityFetch<Recipe[]>({ query: RECIPES_QUERY });
@@ -22,8 +35,9 @@ export default async function IndexPage() {
               <p className="text-gray-500">{recipe?.description}</p>
               <ul>
                 {recipe.ingredients.map((ingredient) => (
-                  <li key={ingredient._key}>
-                    {ingredient.name} - {ingredient.unit}
+                  <li key={ingredient.ingredient._id}>
+                    {ingredient.ingredient.name} - {ingredient.amount}{" "}
+                    {ingredient.unit}
                   </li>
                 ))}
               </ul>

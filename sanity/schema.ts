@@ -79,15 +79,15 @@ export const schema: { types: SchemaTypeDefinition[] } = {
                   type: "string",
                   options: {
                     list: [
-                      { title: "Grams", value: "g" },
-                      { title: "Kilograms", value: "kg" },
-                      { title: "Teaspoons", value: "tsp" },
-                      { title: "Tablespoons", value: "tbsp" },
-                      { title: "Pieces", value: "pcs" },
+                      { title: "Gram", value: "g" },
+                      { title: "Kilogram", value: "kg" },
+                      { title: "Theelepel(s)", value: "tl" },
+                      { title: "Eetlepel(s)", value: "el" },
+                      { title: "Stuk(s)", value: "stuk(s)" },
                       { title: "Milliliters", value: "ml" },
                       { title: "Liters", value: "l" },
-                      { title: "Cups", value: "cup" },
-                      { title: "Hands", value: "hand" },
+                      { title: "Kopjes", value: "kopjes" },
+                      { title: "Handjes", value: "handjes" },
                       // Add more units as needed
                     ],
                   },
