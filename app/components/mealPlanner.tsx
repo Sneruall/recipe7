@@ -90,7 +90,7 @@ export default function MealPlannerPage() {
   };
 
   return (
-    <main className="container mx-auto p-12">
+    <div className="">
       <h1 className="text-4xl font-bold mb-8">Meal Planner</h1>
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => (
@@ -178,6 +178,6 @@ export default function MealPlannerPage() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

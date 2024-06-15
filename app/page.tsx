@@ -24,6 +24,7 @@ export default async function IndexPage() {
 
   return (
     <main className="flex bg-gray-100 min-h-screen flex-col p-24 gap-12">
+      <MealPlannerPage />
       <h1 className="text-4xl font-bold tracking-tighter">Recipes</h1>
       <ul className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         {recipes.map((recipe) => (
@@ -46,7 +47,6 @@ export default async function IndexPage() {
           </li>
         ))}
       </ul>
-      <MealPlannerPage />
     </main>
   );
 }
