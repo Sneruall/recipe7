@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { sanityFetch, client } from "../../utils/sanity/client";
 import { Recipe, PlannedMeal } from "../types";
 
@@ -14,7 +15,7 @@ export default function MealPlannerPage() {
   useEffect(() => {
     async function fetchPlannedMeals() {
       const data = await sanityFetch<PlannedMeal[]>({
-        query: `*[_type == "plannedMeal"]{_id, day, mealType, recipe->{_id, name}}`,
+        query: `*[_type == "plannedMeal"]{_id, day, mealType, recipe->{_id, name, slug}}`,
       });
       setPlannedMeals(data);
     }
@@ -56,7 +57,7 @@ export default function MealPlannerPage() {
     try {
       await client.create(newPlannedMeal);
       const createdMeal = await sanityFetch<PlannedMeal>({
-        query: `*[_id == "${newPlannedMealId}"]{_id, day, mealType, recipe->{_id, name}}[0]`,
+        query: `*[_id == "${newPlannedMealId}"]{_id, day, mealType, recipe->{_id, name, slug}}[0]`,
       });
       setPlannedMeals([...plannedMeals, createdMeal]);
     } catch (error) {
@@ -100,17 +101,25 @@ export default function MealPlannerPage() {
                 <li key={mealType} className="mb-2">
                   <span className="font-semibold">{mealType}: </span>
                   {getPlannedMeal(day, mealType) ? (
-                    <span>{getPlannedMeal(day, mealType)?.recipe.name}</span>
+                    <Link
+                      href={`/recipes/${getPlannedMeal(day, mealType)?.recipe.slug.current}`}
+                    >
+                      <span className="text-blue-500 hover:underline">
+                        {getPlannedMeal(day, mealType)?.recipe.name}
+                      </span>
+                    </Link>
                   ) : (
                     <span>No recipe selected</span>
                   )}
-                  <button
-                    onClick={() => openAddMealDialog(day, mealType)}
-                    className="ml-2 text-blue-500"
-                    disabled={!!getPlannedMeal(day, mealType)}
-                  >
-                    Add
-                  </button>
+                  {!getPlannedMeal(day, mealType) && (
+                    <button
+                      onClick={() => openAddMealDialog(day, mealType)}
+                      className="ml-2 text-blue-500"
+                      disabled={!!getPlannedMeal(day, mealType)}
+                    >
+                      Add
+                    </button>
+                  )}
                   {getPlannedMeal(day, mealType) && (
                     <button
                       onClick={() =>
