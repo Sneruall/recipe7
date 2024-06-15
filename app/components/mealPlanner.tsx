@@ -61,6 +61,9 @@ export default function MealPlannerPage() {
       setPlannedMeals([...plannedMeals, createdMeal]);
     } catch (error) {
       console.error("Error creating planned meal:", (error as Error).message);
+    } finally {
+      setSelectedDay(null);
+      setSelectedMealType(null);
     }
   };
 
@@ -76,6 +79,10 @@ export default function MealPlannerPage() {
   };
 
   const openAddMealDialog = (day: string, mealType: string) => {
+    if (getPlannedMeal(day, mealType)) {
+      alert("A recipe is already selected for this meal type.");
+      return;
+    }
     setSelectedDay(day);
     setSelectedMealType(mealType);
     setSelectedRecipeId(null);
@@ -100,6 +107,7 @@ export default function MealPlannerPage() {
                   <button
                     onClick={() => openAddMealDialog(day, mealType)}
                     className="ml-2 text-blue-500"
+                    disabled={!!getPlannedMeal(day, mealType)}
                   >
                     Add
                   </button>
