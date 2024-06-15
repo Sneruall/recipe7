@@ -81,6 +81,7 @@ export default async function RecipePage({
               ))}
             </ul>
           </div>
+          <h2 className="text-2xl font-semibold">Steps</h2>
           {body && body.length > 0 && (
             <div className="prose max-w-none">
               <PortableText value={body} />
