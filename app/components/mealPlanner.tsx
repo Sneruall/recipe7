@@ -41,18 +41,27 @@ export default function MealPlannerPage() {
         Math.random() * 1000
       )}`;
 
-      const newPlannedMeal: PlannedMeal = {
+      const newPlannedMeal: Omit<PlannedMeal, "recipe"> & {
+        recipe: { _type: "reference"; _ref: string };
+      } = {
         _id: newPlannedMealId, // Ensure a unique _id is generated
         _type: "plannedMeal", // Ensure _type is included with the correct value
         day,
         mealType,
-        recipe: selectedRecipe,
+        recipe: {
+          _type: "reference",
+          _ref: selectedRecipe._id,
+        },
       };
 
       // Use client.create with the newPlannedMeal
       try {
         await client.create(newPlannedMeal);
-        setPlannedMeals([...plannedMeals, newPlannedMeal]);
+        // Fetch the newly created meal with the recipe details
+        const createdMeal = await sanityFetch<PlannedMeal>({
+          query: `*[_id == "${newPlannedMealId}"]{_id, day, mealType, recipe->{_id, name}}[0]`,
+        });
+        setPlannedMeals([...plannedMeals, createdMeal]);
       } catch (error) {
         console.error("Error creating planned meal:", error.message);
         // Handle error appropriately, such as showing an alert to the user
