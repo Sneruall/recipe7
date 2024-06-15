@@ -22,7 +22,7 @@ const RECIPE_QUERY = `*[
 }`;
 
 const { projectId, dataset } = client.config();
-export const urlFor = (source: SanityImageSource) =>
+const urlFor = (source: SanityImageSource) =>
   projectId && dataset
     ? imageUrlBuilder({ projectId, dataset }).image(source)
     : null;
