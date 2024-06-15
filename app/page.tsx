@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { SanityDocument } from "next-sanity";
 import { sanityFetch } from "../utils/sanity/client";
+import { Recipe } from "./types";
 
-// Update the query to fetch recipes instead of events
 const RECIPES_QUERY = `*[_type == "recipe"]{_id, name, slug, description, ingredients, body}|order(_createdAt desc)`;
 
 export default async function IndexPage() {
-  const recipes = await sanityFetch<SanityDocument[]>({ query: RECIPES_QUERY });
+  const recipes = await sanityFetch<Recipe[]>({ query: RECIPES_QUERY });
 
   return (
     <main className="flex bg-gray-100 min-h-screen flex-col p-24 gap-12">
