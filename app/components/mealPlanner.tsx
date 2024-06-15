@@ -63,7 +63,7 @@ export default function MealPlannerPage() {
         });
         setPlannedMeals([...plannedMeals, createdMeal]);
       } catch (error) {
-        console.error("Error creating planned meal:", error.message);
+        console.error("Error creating planned meal:", (error as Error).message);
         // Handle error appropriately, such as showing an alert to the user
       }
     }
