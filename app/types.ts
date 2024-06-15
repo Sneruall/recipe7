@@ -24,6 +24,23 @@ export interface Recipe {
     };
   };
 }
+export interface Meal {
+  breakfast?: Recipe;
+  lunch?: Recipe;
+  dinner?: Recipe;
+  dessert?: Recipe;
+}
+
+export interface Day {
+  day: string;
+  meals: Meal;
+}
+
+export interface MealPlanner {
+  _id: string;
+  week: string;
+  days: Day[];
+}
 
 export interface Shop {
   _id: string;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { sanityFetch } from "../utils/sanity/client";
 import { Recipe } from "./types";
+import MealPlannerPage from "./components/mealPlanner";
 
 const RECIPES_QUERY = `*[_type == "recipe"]{
   _id, 
@@ -45,6 +46,7 @@ export default async function IndexPage() {
           </li>
         ))}
       </ul>
+      <MealPlannerPage />
     </main>
   );
 }
