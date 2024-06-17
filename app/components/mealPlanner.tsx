@@ -165,7 +165,10 @@ export default function MealPlannerPage() {
         });
     });
 
-    return Object.values(ingredientsMap);
+    // Sort the ingredients alphabetically by ingredient name
+    return Object.values(ingredientsMap).sort((a, b) =>
+      a.ingredientName.localeCompare(b.ingredientName)
+    );
   };
 
   const groceryList = generateGroceryList();
