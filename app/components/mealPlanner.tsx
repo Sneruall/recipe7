@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { sanityFetch, client } from "../../utils/sanity/client";
-import { Recipe, PlannedMeal } from "../types";
+import { Recipe, PlannedMeal, RecipeIngredient } from "../types";
 
 export default function MealPlannerPage() {
   const [plannedMeals, setPlannedMeals] = useState<PlannedMeal[]>([]);
@@ -11,18 +11,19 @@ export default function MealPlannerPage() {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedMealType, setSelectedMealType] = useState<string | null>(null);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchPlannedMeals() {
       const data = await sanityFetch<PlannedMeal[]>({
-        query: `*[_type == "plannedMeal"]{_id, day, mealType, recipe->{_id, name, slug}}`,
+        query: `*[_type == "plannedMeal"]{_id, day, mealType, recipe->{_id, name, slug, ingredients}}`,
       });
       setPlannedMeals(data);
     }
 
     async function fetchRecipes() {
       const recipeData = await sanityFetch<Recipe[]>({
-        query: `*[_type == "recipe"]{_id, name}`,
+        query: `*[_type == "recipe"]{_id, name, ingredients}`,
       });
       setRecipes(recipeData);
     }
@@ -57,7 +58,7 @@ export default function MealPlannerPage() {
     try {
       await client.create(newPlannedMeal);
       const createdMeal = await sanityFetch<PlannedMeal>({
-        query: `*[_id == "${newPlannedMealId}"]{_id, day, mealType, recipe->{_id, name, slug}}[0]`,
+        query: `*[_id == "${newPlannedMealId}"]{_id, day, mealType, recipe->{_id, name, slug, ingredients}}[0]`,
       });
       setPlannedMeals([...plannedMeals, createdMeal]);
     } catch (error) {
@@ -89,8 +90,37 @@ export default function MealPlannerPage() {
     setSelectedRecipeId(null);
   };
 
+  const handleDaySelection = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const generateGroceryList = () => {
+    const ingredientsMap: { [key: string]: RecipeIngredient } = {};
+
+    selectedDays.forEach((day) => {
+      plannedMeals
+        .filter((meal) => meal.day === day)
+        .forEach((meal) => {
+          meal.recipe.ingredients.forEach((ingredient) => {
+            const key = `${ingredient.ingredient._id}-${ingredient.unit}`;
+            if (ingredientsMap[key]) {
+              ingredientsMap[key].amount += ingredient.amount;
+            } else {
+              ingredientsMap[key] = { ...ingredient };
+            }
+          });
+        });
+    });
+
+    return Object.values(ingredientsMap);
+  };
+
+  const groceryList = generateGroceryList();
+
   return (
-    <div className="">
+    <div>
       <h2 className="text-4xl font-bold mb-8">Meal Planner</h2>
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => (
@@ -135,6 +165,14 @@ export default function MealPlannerPage() {
                 </li>
               ))}
             </ul>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedDays.includes(day)}
+                onChange={() => handleDaySelection(day)}
+              />
+              Include in grocery list
+            </label>
           </div>
         ))}
       </div>
@@ -178,6 +216,15 @@ export default function MealPlannerPage() {
           </div>
         </div>
       )}
+      <h2 className="text-4xl font-bold mb-8">Grocery List</h2>
+      <ul>
+        {groceryList.map((ingredient) => (
+          <li key={ingredient.ingredient._id}>
+            {ingredient.ingredient.name} - {ingredient.amount} {ingredient.unit}
+          </li>
+        ))}
+      </ul>
+      <p>{JSON.stringify(groceryList)}</p>
     </div>
   );
 }
