@@ -16,14 +16,42 @@ export default function MealPlannerPage() {
   useEffect(() => {
     async function fetchPlannedMeals() {
       const data = await sanityFetch<PlannedMeal[]>({
-        query: `*[_type == "plannedMeal"]{_id, day, mealType, recipe->{_id, name, slug, ingredients}}`,
+        query: `*[_type == "plannedMeal"]{
+            _id,
+            day,
+            mealType,
+            recipe->{
+              _id,
+              name,
+              slug,
+              ingredients[]{
+                ingredient->{
+                  _id,
+                  name
+                },
+                unit,
+                amount
+              }
+            }
+          }`,
       });
       setPlannedMeals(data);
     }
 
     async function fetchRecipes() {
       const recipeData = await sanityFetch<Recipe[]>({
-        query: `*[_type == "recipe"]{_id, name, ingredients}`,
+        query: `*[_type == "recipe"]{
+            _id,
+            name,
+            ingredients[]{
+              ingredient->{
+                _id,
+                name
+              },
+              unit,
+              amount
+            }
+          }`,
       });
       setRecipes(recipeData);
     }
@@ -97,7 +125,9 @@ export default function MealPlannerPage() {
   };
 
   const generateGroceryList = () => {
-    const ingredientsMap: { [key: string]: RecipeIngredient } = {};
+    const ingredientsMap: {
+      [key: string]: RecipeIngredient & { ingredientName: string };
+    } = {};
 
     selectedDays.forEach((day) => {
       plannedMeals
@@ -108,7 +138,10 @@ export default function MealPlannerPage() {
             if (ingredientsMap[key]) {
               ingredientsMap[key].amount += ingredient.amount;
             } else {
-              ingredientsMap[key] = { ...ingredient };
+              ingredientsMap[key] = {
+                ...ingredient,
+                ingredientName: ingredient.ingredient.name, // Add ingredient name here
+              };
             }
           });
         });
@@ -220,11 +253,10 @@ export default function MealPlannerPage() {
       <ul>
         {groceryList.map((ingredient) => (
           <li key={ingredient.ingredient._id}>
-            {ingredient.ingredient.name} - {ingredient.amount} {ingredient.unit}
+            {ingredient.ingredientName} - {ingredient.amount} {ingredient.unit}
           </li>
         ))}
       </ul>
-      <p>{JSON.stringify(groceryList)}</p>
     </div>
   );
 }
