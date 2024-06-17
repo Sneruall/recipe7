@@ -6,43 +6,25 @@ import { sanityFetch, client } from "../../utils/sanity/client";
 import { Recipe, PlannedMeal, RecipeIngredient } from "../types";
 
 export default function MealPlannerPage() {
+  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const [plannedMeals, setPlannedMeals] = useState<PlannedMeal[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedMealType, setSelectedMealType] = useState<string | null>(null);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [selectedDays, setSelectedDays] = useState<string[]>(daysOfWeek);
 
   useEffect(() => {
     async function fetchPlannedMeals() {
       const data = await sanityFetch<PlannedMeal[]>({
         query: `*[_type == "plannedMeal"]{
-            _id,
-            day,
-            mealType,
-            recipe->{
-              _id,
-              name,
-              slug,
-              ingredients[]{
-                ingredient->{
-                  _id,
-                  name
-                },
-                unit,
-                amount
-              }
-            }
-          }`,
-      });
-      setPlannedMeals(data);
-    }
-
-    async function fetchRecipes() {
-      const recipeData = await sanityFetch<Recipe[]>({
-        query: `*[_type == "recipe"]{
+          _id,
+          day,
+          mealType,
+          recipe->{
             _id,
             name,
+            slug,
             ingredients[]{
               ingredient->{
                 _id,
@@ -51,7 +33,26 @@ export default function MealPlannerPage() {
               unit,
               amount
             }
-          }`,
+          }
+        }`,
+      });
+      setPlannedMeals(data);
+    }
+
+    async function fetchRecipes() {
+      const recipeData = await sanityFetch<Recipe[]>({
+        query: `*[_type == "recipe"]{
+          _id,
+          name,
+          ingredients[]{
+            ingredient->{
+              _id,
+              name
+            },
+            unit,
+            amount
+          }
+        }`,
       });
       setRecipes(recipeData);
     }
@@ -86,7 +87,24 @@ export default function MealPlannerPage() {
     try {
       await client.create(newPlannedMeal);
       const createdMeal = await sanityFetch<PlannedMeal>({
-        query: `*[_id == "${newPlannedMealId}"]{_id, day, mealType, recipe->{_id, name, slug, ingredients}}[0]`,
+        query: `*[_id == "${newPlannedMealId}"]{
+          _id,
+          day,
+          mealType,
+          recipe->{
+            _id,
+            name,
+            slug,
+            ingredients[]{
+              ingredient->{
+                _id,
+                name
+              },
+              unit,
+              amount
+            }
+          }
+        }[0]`,
       });
       setPlannedMeals([...plannedMeals, createdMeal]);
     } catch (error) {
@@ -156,7 +174,7 @@ export default function MealPlannerPage() {
     <div>
       <h2 className="text-4xl font-bold mb-8">Meal Planner</h2>
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-        {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => (
+        {daysOfWeek.map((day) => (
           <div key={day} className="bg-white p-4 rounded-lg shadow mb-8">
             <h2 className="text-2xl font-semibold mb-4">{day}</h2>
             <ul>
