@@ -11,9 +11,17 @@ const RECIPES_QUERY = `*[_type == "recipe"]{
   ingredients[]{
     ingredient->{
       _id,
-      name
+      name,
+      shop->{
+        _id,
+        name
+      }
     }, 
-    unit, 
+    unit->{
+      _id,
+      name,
+      value
+    }, 
     amount
   }, 
   body

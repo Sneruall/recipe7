@@ -9,23 +9,31 @@ import Image from "next/image";
 import { Recipe } from "../../types";
 
 const RECIPE_QUERY = `*[
-    _type == "recipe" &&
-    slug.current == $slug
-  ][0]{
-    _id,
-    name,
-    description,
-    ingredients[]{
-      _key,
-      amount,
-      unit,
-      ingredient->{
+  _type == "recipe" &&
+  slug.current == $slug
+][0]{
+  _id,
+  name,
+  description,
+  ingredients[]{
+    _key,
+    amount,
+    unit->{
+      _id,
+      name,
+      value
+    },
+    ingredient->{
+      name,
+      shop->{
+        _id,
         name
       }
-    },
-    body,
-    image
-  }`;
+    }
+  },
+  body,
+  image
+}`;
 
 const { projectId, dataset } = client.config();
 const urlFor = (source: SanityImageSource) =>
