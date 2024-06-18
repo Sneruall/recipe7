@@ -34,7 +34,11 @@ export default function MealPlannerPage() {
                   name
                 }
               },
-              unit,
+              unit->{
+                _id,
+                name,
+                value
+              },
               amount
             }
           }
@@ -57,7 +61,11 @@ export default function MealPlannerPage() {
                 name
               }
             },
-            unit,
+            unit->{
+              _id,
+              name,
+              value
+            },
             amount
           }
         }`,
@@ -167,14 +175,14 @@ export default function MealPlannerPage() {
         .filter((meal) => meal.day === day)
         .forEach((meal) => {
           meal.recipe.ingredients.forEach((ingredient) => {
-            const key = `${ingredient.ingredient._id}-${ingredient.unit}`;
+            const key = `${ingredient.ingredient._id}-${ingredient.unit._id}`;
             if (ingredientsMap[key]) {
               ingredientsMap[key].amount += ingredient.amount;
             } else {
               ingredientsMap[key] = {
                 ...ingredient,
                 ingredientName: ingredient.ingredient.name,
-                shopName: ingredient.ingredient.shop.name, // Add shop name here
+                shopName: ingredient.ingredient.shop.name,
               };
             }
           });
@@ -290,8 +298,8 @@ export default function MealPlannerPage() {
       <ul>
         {groceryList.map((ingredient) => (
           <li key={ingredient.ingredient._id}>
-            {ingredient.ingredientName} - {ingredient.amount} {ingredient.unit}{" "}
-            ({ingredient.shopName})
+            {ingredient.ingredientName} - {ingredient.amount}{" "}
+            {ingredient.unit.value} ({ingredient.shopName})
           </li>
         ))}
       </ul>

@@ -76,7 +76,7 @@ export default async function RecipePage({
               {ingredients.map((ingredient) => (
                 <li key={ingredient._key}>
                   {ingredient.ingredient.name} - {ingredient.amount}{" "}
-                  {ingredient.unit}
+                  {ingredient.unit.value}
                 </li>
               ))}
             </ul>

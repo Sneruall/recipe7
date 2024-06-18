@@ -1,5 +1,6 @@
 import { SchemaTypeDefinition, defineType, defineField } from "sanity";
 import { plannedMeal } from "./mealplanner";
+import { unit } from "./unit"; // Import the unit schema
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -77,21 +78,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
                 {
                   name: "unit",
                   title: "Unit",
-                  type: "string",
-                  options: {
-                    list: [
-                      { title: "Gram", value: "g" },
-                      { title: "Kilogram", value: "kg" },
-                      { title: "Theelepel(s)", value: "tl" },
-                      { title: "Eetlepel(s)", value: "el" },
-                      { title: "Stuk(s)", value: "stuk(s)" },
-                      { title: "Milliliters", value: "ml" },
-                      { title: "Liters", value: "l" },
-                      { title: "Kopjes", value: "kopjes" },
-                      { title: "Handjes", value: "handjes" },
-                      // Add more units as needed
-                    ],
-                  },
+                  type: "reference",
+                  to: [{ type: "unit" }],
                 },
                 {
                   name: "amount",
@@ -103,7 +91,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
                 select: {
                   title: "ingredient.name",
                   subtitle: "amount",
-                  unit: "unit",
+                  unit: "unit.name",
                 },
                 prepare({ title, subtitle, unit }) {
                   return {
@@ -153,5 +141,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
       ],
     }),
     plannedMeal,
+    unit, // Include the unit schema
   ],
 };

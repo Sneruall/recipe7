@@ -7,9 +7,15 @@ export interface Ingredient {
   };
 }
 
+export interface Unit {
+  _id: string;
+  name: string;
+  value: string;
+}
+
 export interface RecipeIngredient {
   ingredient: Ingredient;
-  unit: string;
+  unit: Unit; // Update to reference Unit
   amount: number;
   _key?: string;
 }

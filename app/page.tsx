@@ -42,7 +42,7 @@ export default async function IndexPage() {
                 {recipe.ingredients.map((ingredient) => (
                   <li key={ingredient.ingredient._id}>
                     {ingredient.ingredient.name} - {ingredient.amount}{" "}
-                    {ingredient.unit}
+                    {ingredient.unit.value}
                   </li>
                 ))}
               </ul>
