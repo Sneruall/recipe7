@@ -126,6 +126,12 @@ export const schema: { types: SchemaTypeDefinition[] } = {
           type: "reference",
           to: [{ type: "shop" }],
         }),
+        defineField({
+          name: "isStock",
+          title: "Stock ingredient",
+          type: "boolean",
+          initialValue: false,
+        }),
       ],
     }),
     defineType({

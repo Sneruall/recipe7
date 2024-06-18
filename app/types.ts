@@ -5,6 +5,7 @@ export interface Ingredient {
     _id: string;
     name: string;
   };
+  isStock: boolean;
 }
 
 export interface Unit {

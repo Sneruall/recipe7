@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sanityFetch } from "../utils/sanity/client";
 import { Recipe } from "./types";
 import MealPlannerPage from "./components/mealPlanner";
+import StockIngredients from "./components/stockIngredients";
 
 const RECIPES_QUERY = `*[_type == "recipe"]{
   _id, 
@@ -15,7 +16,8 @@ const RECIPES_QUERY = `*[_type == "recipe"]{
       shop->{
         _id,
         name
-      }
+      },
+      isStock
     }, 
     unit->{
       _id,
@@ -36,6 +38,7 @@ export default async function IndexPage() {
         AWESOME RECEPTEN PLANNER (DOEI NOTION👋)
       </h1>
       <MealPlannerPage />
+
       <h2 className="text-4xl font-bold tracking-tighter">Recipes</h2>
       <ul className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         {recipes.map((recipe) => (
@@ -58,6 +61,7 @@ export default async function IndexPage() {
           </li>
         ))}
       </ul>
+      <StockIngredients />
     </main>
   );
 }
