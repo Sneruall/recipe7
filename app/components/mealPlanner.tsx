@@ -120,7 +120,11 @@ export default function MealPlannerPage() {
                   name
                 }
               },
-              unit,
+              unit->{
+                _id,
+                name,
+                value
+              },
               amount
             }
           }
@@ -162,8 +166,6 @@ export default function MealPlannerPage() {
     );
   };
 
-  /* The `generateGroceryList` function is creating a grocery list based on the selected days and planned
-meals. Here's a breakdown of what it does: */
   const generateGroceryList = () => {
     const ingredientsMap: {
       [key: string]: RecipeIngredient & {
