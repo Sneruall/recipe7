@@ -1,39 +1,34 @@
-// StockIngredients.tsx
-"use client";
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { sanityFetch } from "../../utils/sanity/client";
-import { Ingredient, Unit } from "../types";
+import { Ingredient } from "../types";
 
-// Add this query wherever appropriate in your code structure
+// Define the query for fetching stock ingredients
 const STOCK_INGREDIENTS_QUERY = `*[_type == "ingredient" && isStock == true]{
+  _id,
+  name,
+  shop->{
     _id,
-    name,
-    shop->{
-      _id,
-      name
-    },
-    isStock
-  }`;
+    name
+  },
+  isStock
+}`;
 
-const StockIngredients: React.FC = () => {
-  const [stockIngredients, setStockIngredients] = useState<Ingredient[]>([]);
+// Fetch stock ingredients from Sanity
+const fetchStockIngredients = async (): Promise<Ingredient[]> => {
+  return sanityFetch<Ingredient[]>({
+    query: STOCK_INGREDIENTS_QUERY,
+  });
+};
 
-  useEffect(() => {
-    const fetchStockIngredients = async () => {
-      try {
-        const data = await sanityFetch<Ingredient[]>({
-          query: STOCK_INGREDIENTS_QUERY,
-        });
-        setStockIngredients(data);
-      } catch (error) {
-        console.error("Error fetching stock ingredients:", error);
-      }
-    };
+// Define the props interface
+interface StockIngredientsProps {
+  stockIngredients: Ingredient[];
+}
 
-    fetchStockIngredients();
-  }, []);
-
+// Component to display stock ingredients
+const StockIngredients: React.FC<StockIngredientsProps> = ({
+  stockIngredients,
+}) => {
   return (
     <div className="mb-8">
       <h2 className="text-4xl font-bold mb-4">Stock Ingredients</h2>
@@ -48,4 +43,8 @@ const StockIngredients: React.FC = () => {
   );
 };
 
-export default StockIngredients;
+// Fetch data on the server side and render the component
+export default async function ServerComponent() {
+  const stockIngredients = await fetchStockIngredients();
+  return <StockIngredients stockIngredients={stockIngredients} />;
+}
