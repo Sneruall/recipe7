@@ -28,7 +28,11 @@ export default function MealPlannerPage() {
             ingredients[]{
               ingredient->{
                 _id,
-                name
+                name,
+                shop->{
+                  _id,
+                  name
+                }
               },
               unit,
               amount
@@ -47,7 +51,11 @@ export default function MealPlannerPage() {
           ingredients[]{
             ingredient->{
               _id,
-              name
+              name,
+              shop->{
+                _id,
+                name
+              }
             },
             unit,
             amount
@@ -98,7 +106,11 @@ export default function MealPlannerPage() {
             ingredients[]{
               ingredient->{
                 _id,
-                name
+                name,
+                shop->{
+                  _id,
+                  name
+                }
               },
               unit,
               amount
@@ -144,7 +156,10 @@ export default function MealPlannerPage() {
 
   const generateGroceryList = () => {
     const ingredientsMap: {
-      [key: string]: RecipeIngredient & { ingredientName: string };
+      [key: string]: RecipeIngredient & {
+        ingredientName: string;
+        shopName: string;
+      };
     } = {};
 
     selectedDays.forEach((day) => {
@@ -158,7 +173,8 @@ export default function MealPlannerPage() {
             } else {
               ingredientsMap[key] = {
                 ...ingredient,
-                ingredientName: ingredient.ingredient.name, // Add ingredient name here
+                ingredientName: ingredient.ingredient.name,
+                shopName: ingredient.ingredient.shop.name, // Add shop name here
               };
             }
           });
@@ -274,7 +290,8 @@ export default function MealPlannerPage() {
       <ul>
         {groceryList.map((ingredient) => (
           <li key={ingredient.ingredient._id}>
-            {ingredient.ingredientName} - {ingredient.amount} {ingredient.unit}
+            {ingredient.ingredientName} - {ingredient.amount} {ingredient.unit}{" "}
+            ({ingredient.shopName})
           </li>
         ))}
       </ul>

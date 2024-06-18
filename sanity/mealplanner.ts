@@ -1,5 +1,4 @@
 // mealPlanner.ts
-
 import { defineType, defineField } from "sanity";
 
 export const plannedMeal = defineType({

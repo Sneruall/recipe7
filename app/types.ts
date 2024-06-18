@@ -1,6 +1,10 @@
 export interface Ingredient {
   _id: string;
   name: string;
+  shop: {
+    _id: string;
+    name: string;
+  };
 }
 
 export interface RecipeIngredient {
