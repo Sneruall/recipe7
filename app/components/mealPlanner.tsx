@@ -13,6 +13,7 @@ export default function MealPlannerPage() {
   const [selectedMealType, setSelectedMealType] = useState<string | null>(null);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>(daysOfWeek);
+  const [selectedShop, setSelectedShop] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPlannedMeals() {
@@ -180,14 +181,22 @@ export default function MealPlannerPage() {
         .forEach((meal) => {
           meal.recipe.ingredients.forEach((ingredient) => {
             const key = `${ingredient.ingredient._id}-${ingredient.unit._id}`;
-            if (ingredientsMap[key]) {
-              ingredientsMap[key].amount += ingredient.amount;
-            } else {
+            const shopName = ingredient.ingredient.shop.name;
+
+            if (
+              (!selectedShop || shopName === selectedShop) &&
+              !ingredientsMap[key]
+            ) {
               ingredientsMap[key] = {
                 ...ingredient,
                 ingredientName: ingredient.ingredient.name,
-                shopName: ingredient.ingredient.shop.name,
+                shopName: shopName,
               };
+            } else if (
+              ingredientsMap[key] &&
+              (!selectedShop || shopName === selectedShop)
+            ) {
+              ingredientsMap[key].amount += ingredient.amount;
             }
           });
         });
@@ -299,6 +308,33 @@ export default function MealPlannerPage() {
         </div>
       )}
       <h2 className="text-4xl font-bold mb-8">Grocery List</h2>
+      <div className="mb-4">
+        <select
+          value={selectedShop || ""}
+          onChange={(e) => setSelectedShop(e.target.value || null)}
+          className="p-2 border border-gray-300 rounded-md"
+        >
+          <option value="">All Shops</option>
+          {recipes
+            .reduce<string[]>((shops, recipe) => {
+              recipe.ingredients.forEach((ingredient) => {
+                const shopId = ingredient.ingredient.shop._id;
+                const shopName = ingredient.ingredient.shop.name;
+                // Check if shopName is already added to the list of shops
+                if (!shops.some((shop) => shop === shopName)) {
+                  shops.push(shopName); // Push only shopName if not already in the list
+                }
+              });
+              return shops;
+            }, [])
+            .map((shopName) => (
+              <option key={shopName} value={shopName}>
+                {shopName}
+              </option>
+            ))}
+        </select>
+      </div>
+
       <ul>
         {groceryList.map((ingredient) => (
           <li key={ingredient.ingredient._id}>

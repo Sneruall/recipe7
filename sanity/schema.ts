@@ -91,7 +91,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
                 select: {
                   title: "ingredient.name",
                   subtitle: "amount",
-                  unit: "unit.name",
+                  unit: "unit.value",
                 },
                 prepare({ title, subtitle, unit }) {
                   return {
