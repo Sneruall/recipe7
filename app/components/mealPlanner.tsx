@@ -1,10 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { sanityFetch, client } from "../../utils/sanity/client";
 import { Recipe, PlannedMeal, RecipeIngredient } from "../types";
 import { v4 as uuidv4 } from "uuid"; // Import uuid
+
+// Modal component
+function Modal({ isOpen, onClose, children }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="bg-white p-8 rounded shadow-md">
+        <button onClick={onClose} className="absolute top-2 right-2 text-xl">
+          &times;
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export default function MealPlannerPage() {
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -15,6 +31,7 @@ export default function MealPlannerPage() {
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>(daysOfWeek);
   const [selectedShop, setSelectedShop] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 
   useEffect(() => {
     async function fetchPlannedMeals() {
@@ -177,6 +194,7 @@ export default function MealPlannerPage() {
 
     setSelectedDay(null);
     setSelectedMealType(null);
+    setIsModalOpen(false); // Close the modal after adding a meal
   };
 
   const handleRemoveMeal = async (mealId: string, recipeId: string) => {
@@ -211,6 +229,7 @@ export default function MealPlannerPage() {
     setSelectedDay(day);
     setSelectedMealType(mealType);
     setSelectedRecipeId(null);
+    setIsModalOpen(true); // Open the modal when Add Meal button is clicked
     console.log(selectedDay, selectedMealType);
   };
 
@@ -317,33 +336,33 @@ export default function MealPlannerPage() {
           </div>
         ))}
       </div>
-      {selectedDay && selectedMealType && (
-        <div>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">
-            Add Meal for {selectedDay} - {selectedMealType}
-          </h2>
-          <select
-            value={selectedRecipeId ?? ""}
-            onChange={(e) => setSelectedRecipeId(e.target.value)}
-            className="bg-white border border-gray-300 rounded px-4 py-2 mb-4"
-          >
-            <option value="" disabled>
-              Select a recipe
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h2 className="text-2xl font-semibold mb-4">
+          Add Meal for {selectedDay} - {selectedMealType}
+        </h2>
+        <select
+          value={selectedRecipeId ?? ""}
+          onChange={(e) => setSelectedRecipeId(e.target.value)}
+          className="bg-white border border-gray-300 rounded px-4 py-2 mb-4"
+        >
+          <option value="" disabled>
+            Select a recipe
+          </option>
+          {recipes.map((recipe) => (
+            <option key={recipe._id} value={recipe._id}>
+              {recipe.name}
             </option>
-            {recipes.map((recipe) => (
-              <option key={recipe._id} value={recipe._id}>
-                {recipe.name}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handleAddMeal}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Add Meal
-          </button>
-        </div>
-      )}
+          ))}
+        </select>
+        <button
+          onClick={handleAddMeal}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Add Meal
+        </button>
+      </Modal>
+
       <div className="mt-8">
         <h2 className="text-2xl font-semibold mb-4">Grocery List</h2>
         <div>
