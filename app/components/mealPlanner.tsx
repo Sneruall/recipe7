@@ -215,17 +215,14 @@ export default function MealPlannerPage() {
       const updatedRecipes = existingMeal.recipes
         .filter((recipe) => recipe._id !== recipeId)
         .map((recipe) => ({
-          _type: "reference",
-          _ref: recipe._id,
-          _key: recipe._key ?? uuidv4(), // Ensure each recipe has a _key
+          ...recipe, // Spread the recipe to include all its properties
+          _key: recipe._key ?? uuidv4(), // Ensure each recipe has a _key if it doesn't exist
         }));
 
       // Update Sanity document with the updated recipes
       await client.patch(mealId).set({ recipes: updatedRecipes }).commit();
 
-      console.log("updated Recipes: " + JSON.stringify(updatedRecipes));
-
-      // Update local state with the updated recipes
+      // Update local state with the updated recipes (including all details)
       setPlannedMeals((prevMeals) =>
         prevMeals.map((meal) =>
           meal._id === mealId ? { ...meal, recipes: updatedRecipes } : meal
@@ -234,7 +231,7 @@ export default function MealPlannerPage() {
 
       // If updatedRecipes is empty, delete the entire planned meal
       if (updatedRecipes.length === 0) {
-        await client.delete(mealId).commit(); // Delete the document from Sanity
+        await client.delete(mealId); // Delete the document from Sanity
         setPlannedMeals((prevMeals) =>
           prevMeals.filter((meal) => meal._id !== mealId)
         ); // Remove from local state
