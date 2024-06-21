@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { sanityFetch, client } from "../../utils/sanity/client";
 import { Recipe, PlannedMeal, RecipeIngredient } from "../types";
 import { v4 as uuidv4 } from "uuid"; // Import uuid
 
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}
+
 // Modal component
-function Modal({ isOpen, onClose, children }) {
+function Modal({ isOpen, onClose, children }: ModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -209,7 +215,7 @@ export default function MealPlannerPage() {
       await client.delete(mealId);
       setPlannedMeals(plannedMeals.filter((meal) => meal._id !== mealId));
     } else {
-      await client.patch(mealId).set({ recipes: updatedRecipes });
+      await client.patch(mealId).set({ recipes: updatedRecipes }).commit();
       setPlannedMeals((prevMeals) =>
         prevMeals.map((meal) =>
           meal._id === mealId ? { ...meal, recipes: updatedRecipes } : meal
