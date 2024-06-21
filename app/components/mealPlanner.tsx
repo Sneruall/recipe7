@@ -370,12 +370,25 @@ export default function MealPlannerPage() {
           <option value="" disabled>
             Select a recipe
           </option>
-          {recipes.map((recipe) => (
-            <option key={recipe._id} value={recipe._id}>
-              {recipe.name}
-            </option>
-          ))}
+          {recipes
+            .filter((recipe) => {
+              // Check if recipe is already selected for the current day and meal type
+              const existingMeal = plannedMeals.find(
+                (meal) =>
+                  meal.day === selectedDay && meal.mealType === selectedMealType
+              );
+              if (existingMeal) {
+                return !existingMeal.recipes.some((r) => r._id === recipe._id);
+              }
+              return true; // Show all recipes if no existing meal found
+            })
+            .map((recipe) => (
+              <option key={recipe._id} value={recipe._id}>
+                {recipe.name}
+              </option>
+            ))}
         </select>
+
         <button
           onClick={handleAddMeal}
           className="bg-blue-500 text-white px-4 py-2 rounded"
