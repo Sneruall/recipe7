@@ -220,15 +220,27 @@ export default function MealPlannerPage() {
           _key: recipe._key ?? uuidv4(), // Ensure each recipe has a _key
         }));
 
+      // Update Sanity document with the updated recipes
       await client.patch(mealId).set({ recipes: updatedRecipes }).commit();
 
+      console.log("updated Recipes: " + JSON.stringify(updatedRecipes));
+
+      // Update local state with the updated recipes
       setPlannedMeals((prevMeals) =>
         prevMeals.map((meal) =>
           meal._id === mealId ? { ...meal, recipes: updatedRecipes } : meal
         )
       );
+
+      // If updatedRecipes is empty, delete the entire planned meal
+      if (updatedRecipes.length === 0) {
+        await client.delete(mealId).commit(); // Delete the document from Sanity
+        setPlannedMeals((prevMeals) =>
+          prevMeals.filter((meal) => meal._id !== mealId)
+        ); // Remove from local state
+      }
     } catch (error) {
-      console.error("Error updating planned meal:", error);
+      console.error("Error updating or deleting planned meal:", error);
     }
   };
 
@@ -319,7 +331,7 @@ export default function MealPlannerPage() {
                     </button>
                   </div>
                   <div className="mt-2">
-                    {plannedMeal ? (
+                    {plannedMeal &&
                       plannedMeal.recipes.map((recipe) => (
                         <div
                           key={recipe._id}
@@ -340,10 +352,7 @@ export default function MealPlannerPage() {
                             Remove
                           </button>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500">No meal planned</p>
-                    )}
+                      ))}
                   </div>
                 </div>
               );
