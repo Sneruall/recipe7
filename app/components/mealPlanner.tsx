@@ -275,26 +275,28 @@ export default function MealPlannerPage() {
         .filter((meal) => meal.day === day)
         .forEach((meal) => {
           meal.recipes.forEach((recipe) => {
-            recipe.ingredients.forEach((ingredient) => {
-              const key = `${ingredient.ingredient._id}-${ingredient.unit._id}`;
-              const shopName = ingredient.ingredient.shop?.name ?? "No Shop";
+            recipe.ingredients
+              .filter((ingredient) => ingredient.ingredient.shop) // Filter out ingredients with no shop
+              .forEach((ingredient) => {
+                const key = `${ingredient.ingredient._id}-${ingredient.unit._id}`;
+                const shopName = ingredient.ingredient.shop?.name ?? "No Shop";
 
-              if (
-                (!selectedShop || shopName === selectedShop) &&
-                !ingredientsMap[key]
-              ) {
-                ingredientsMap[key] = {
-                  ...ingredient,
-                  ingredientName: ingredient.ingredient.name,
-                  shopName: shopName,
-                };
-              } else if (
-                ingredientsMap[key] &&
-                (!selectedShop || shopName === selectedShop)
-              ) {
-                ingredientsMap[key].amount += ingredient.amount;
-              }
-            });
+                if (
+                  (!selectedShop || shopName === selectedShop) &&
+                  !ingredientsMap[key]
+                ) {
+                  ingredientsMap[key] = {
+                    ...ingredient,
+                    ingredientName: ingredient.ingredient.name,
+                    shopName: shopName,
+                  };
+                } else if (
+                  ingredientsMap[key] &&
+                  (!selectedShop || shopName === selectedShop)
+                ) {
+                  ingredientsMap[key].amount += ingredient.amount;
+                }
+              });
           });
         });
     });
