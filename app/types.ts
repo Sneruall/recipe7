@@ -38,10 +38,10 @@ export interface Recipe {
 
 export interface PlannedMeal {
   _id: string;
-  _type: string; // Add _type with the appropriate value
+  _type: string;
   day: string;
   mealType: string;
-  recipe: Recipe;
+  recipes: Recipe[];
 }
 
 export interface Shop {
