@@ -40,6 +40,7 @@ export default function MealPlannerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 
   useEffect(() => {
+    console.log("use effect runs");
     async function fetchPlannedMeals() {
       const data = await sanityFetch<PlannedMeal[]>({
         query: `*[_type == "plannedMeal"]{
@@ -204,23 +205,30 @@ export default function MealPlannerPage() {
   };
 
   const handleRemoveMeal = async (mealId: string, recipeId: string) => {
-    const existingMeal = plannedMeals.find((meal) => meal._id === mealId);
-    if (!existingMeal) return;
+    try {
+      const existingMeal = plannedMeals.find((meal) => meal._id === mealId);
+      if (!existingMeal) {
+        console.error(`Meal with ID ${mealId} not found.`);
+        return;
+      }
 
-    const updatedRecipes = existingMeal.recipes.filter(
-      (recipe) => recipe._id !== recipeId
-    );
+      const updatedRecipes = existingMeal.recipes
+        .filter((recipe) => recipe._id !== recipeId)
+        .map((recipe) => ({
+          _type: "reference",
+          _ref: recipe._id,
+          _key: recipe._key ?? uuidv4(), // Ensure each recipe has a _key
+        }));
 
-    if (updatedRecipes.length === 0) {
-      await client.delete(mealId);
-      setPlannedMeals(plannedMeals.filter((meal) => meal._id !== mealId));
-    } else {
       await client.patch(mealId).set({ recipes: updatedRecipes }).commit();
+
       setPlannedMeals((prevMeals) =>
         prevMeals.map((meal) =>
           meal._id === mealId ? { ...meal, recipes: updatedRecipes } : meal
         )
       );
+    } catch (error) {
+      console.error("Error updating planned meal:", error);
     }
   };
 
@@ -246,6 +254,7 @@ export default function MealPlannerPage() {
   };
 
   const generateGroceryList = () => {
+    console.log("generate grocery list");
     const ingredientsMap: {
       [key: string]: RecipeIngredient & {
         ingredientName: string;
