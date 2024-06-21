@@ -263,11 +263,10 @@ export default function MealPlannerPage() {
   };
 
   const generateGroceryList = () => {
-    console.log("generate grocery list");
     const ingredientsMap: {
       [key: string]: RecipeIngredient & {
         ingredientName: string;
-        shopName: string;
+        shopName?: string;
       };
     } = {};
 
@@ -278,7 +277,7 @@ export default function MealPlannerPage() {
           meal.recipes.forEach((recipe) => {
             recipe.ingredients.forEach((ingredient) => {
               const key = `${ingredient.ingredient._id}-${ingredient.unit._id}`;
-              const shopName = ingredient.ingredient.shop.name;
+              const shopName = ingredient.ingredient.shop?.name ?? "No Shop";
 
               if (
                 (!selectedShop || shopName === selectedShop) &&
@@ -426,9 +425,9 @@ export default function MealPlannerPage() {
             {Array.from(
               new Set(
                 recipes.flatMap((recipe) =>
-                  recipe.ingredients.map(
-                    (ingredient) => ingredient.ingredient.shop.name
-                  )
+                  recipe.ingredients
+                    .filter((ingredient) => ingredient.ingredient.shop) // Filter out ingredients with no shop
+                    .map((ingredient) => ingredient.ingredient.shop.name)
                 )
               )
             ).map((shop) => (
@@ -441,9 +440,11 @@ export default function MealPlannerPage() {
         <ul className="list-disc pl-8">
           {groceryList.map((ingredient) => (
             <li key={`${ingredient.ingredient._id}-${ingredient.unit._id}`}>
-              {ingredient.amount} {ingredient.unit.name}{" "}
-              {ingredient.ingredientName}{" "}
-              {ingredient.shopName && <span>({ingredient.shopName})</span>}
+              {ingredient.ingredientName}: {ingredient.amount}{" "}
+              {ingredient.unit.value}{" "}
+              {ingredient.shopName && ingredient.shopName !== "No Shop" && (
+                <span>({ingredient.shopName})</span>
+              )}
             </li>
           ))}
         </ul>
