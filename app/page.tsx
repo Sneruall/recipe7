@@ -33,7 +33,7 @@ export default async function IndexPage() {
   const recipes = await sanityFetch<Recipe[]>({ query: RECIPES_QUERY });
 
   return (
-    <main className="flex bg-gray-100 min-h-screen flex-col p-24 gap-12">
+    <main className="flex bg-white min-h-screen flex-col p-8 gap-12">
       <h1 className="text-5xl font-bold tracking-tighter">
         AWESOME RECEPTEN PLANNER (DOEI NOTION👋)
       </h1>

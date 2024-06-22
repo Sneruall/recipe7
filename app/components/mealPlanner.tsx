@@ -309,11 +309,11 @@ export default function MealPlannerPage() {
   const groceryList = generateGroceryList();
 
   return (
-    <div className="grid xl:grid-cols-4 gap-8">
-      <div className="max-w-2xl">
-        <h2 className="text-4xl font-bold mb-8">Grocery List</h2>
+    <div className="grid xl:grid-cols-6 gap-16">
+      <div className="col-span-2 border border-gray-100 rounded-3xl p-4 ">
+        <h2 className="text-xl font-bold mb-8">Grocery List</h2>
         <div>
-          <label className="block text-lg mb-2">Select Days:</label>
+          <label className="block mb-2">Select Days:</label>
           <div className="flex flex-wrap gap-2 mb-4">
             {daysOfWeek.map((day) => (
               <button
@@ -329,7 +329,7 @@ export default function MealPlannerPage() {
               </button>
             ))}
           </div>
-          <label className="block text-lg mb-2">Select Shop:</label>
+          <label className="block mb-2">Select Shop:</label>
           <select
             value={selectedShop ?? ""}
             onChange={(e) => setSelectedShop(e.target.value)}
@@ -351,19 +351,41 @@ export default function MealPlannerPage() {
             ))}
           </select>
         </div>
-        <ul className="list-disc pl-8">
-          {groceryList.map((ingredient) => (
-            <li key={`${ingredient.ingredient._id}-${ingredient.unit._id}`}>
-              {ingredient.ingredientName}: {ingredient.amount}{" "}
-              {ingredient.unit.value}{" "}
-              {ingredient.shopName && ingredient.shopName !== "No Shop" && (
-                <span>({ingredient.shopName})</span>
-              )}
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="bg-gray-100 text-sm text-left">
+                <th className="px-4 py-2"></th>
+                <th className="pr-4 py-2">Ingredient</th>
+                <th className="px-4 py-2">Amount</th>
+                <th className="px-4 py-2">Shop</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groceryList.map((ingredient) => (
+                <tr
+                  className="text-xs"
+                  key={`${ingredient.ingredient._id}-${ingredient.unit._id}`}
+                >
+                  <td className="px-4 py-2 m-auto pb-1">
+                    <input type="checkbox" />
+                  </td>
+                  <td className="pr-4 py-2">{ingredient.ingredientName}</td>
+                  <td className="px-4 py-2">
+                    {ingredient.amount} {ingredient.unit.value}
+                  </td>
+                  <td className="px-4 py-2">
+                    {ingredient.shopName && ingredient.shopName !== "No Shop"
+                      ? ingredient.shopName
+                      : ""}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div className="max-w-4xl col-span-2">
+      <div className="col-span-4">
         <h2 className="text-4xl font-bold mb-8">Meal Planner</h2>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {daysOfWeek.map((day) => (
