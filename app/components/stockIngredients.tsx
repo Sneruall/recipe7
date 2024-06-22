@@ -35,7 +35,7 @@ const StockIngredients: React.FC<StockIngredientsProps> = ({
       <ul>
         {stockIngredients.map((ingredient) => (
           <li key={ingredient._id}>
-            {ingredient.name} - ({ingredient.shop.name})
+            {ingredient.name} - ({ingredient.shop?.name || "No Shop Assigned"})
           </li>
         ))}
       </ul>
