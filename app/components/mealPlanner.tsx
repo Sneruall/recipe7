@@ -58,7 +58,8 @@ export default function MealPlannerPage() {
                 shop->{
                   _id,
                   name
-                }
+                },
+                isStock
               },
               unit->{
                 _id,
@@ -266,6 +267,7 @@ export default function MealPlannerPage() {
     const ingredientsMap: {
       [key: string]: RecipeIngredient & {
         ingredientName: string;
+        isStock: boolean;
         shopName?: string;
       };
     } = {};
@@ -280,6 +282,7 @@ export default function MealPlannerPage() {
               .forEach((ingredient) => {
                 const key = `${ingredient.ingredient._id}-${ingredient.unit._id}`;
                 const shopName = ingredient.ingredient.shop?.name ?? "No Shop";
+                const isStock = ingredient.ingredient.isStock;
 
                 if (
                   (!selectedShop || shopName === selectedShop) &&
@@ -289,6 +292,7 @@ export default function MealPlannerPage() {
                     ...ingredient,
                     ingredientName: ingredient.ingredient.name,
                     shopName: shopName,
+                    isStock: isStock,
                   };
                 } else if (
                   ingredientsMap[key] &&
@@ -370,7 +374,10 @@ export default function MealPlannerPage() {
                   <td className="px-4 py-2 m-auto pb-1">
                     <input type="checkbox" />
                   </td>
-                  <td className="pr-4 py-2">{ingredient.ingredientName}</td>
+                  <td className="pr-4 py-2">
+                    {ingredient.ingredientName}
+                    {ingredient.isStock && " (V)"}
+                  </td>
                   <td className="px-4 py-2">
                     {ingredient.amount} {ingredient.unit.value}
                   </td>

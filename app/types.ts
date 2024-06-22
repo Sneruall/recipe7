@@ -18,6 +18,7 @@ export interface RecipeIngredient {
   ingredient: Ingredient;
   unit: Unit; // Update to reference Unit
   amount: number;
+  isStock: boolean;
   _key?: string;
 }
 
