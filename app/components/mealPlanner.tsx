@@ -309,97 +309,9 @@ export default function MealPlannerPage() {
   const groceryList = generateGroceryList();
 
   return (
-    <div>
-      <h2 className="text-4xl font-bold mb-8">Meal Planner</h2>
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-        {daysOfWeek.map((day) => (
-          <div key={day} className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-xl font-semibold mb-4">{day}</h3>
-            {["Breakfast", "Lunch", "Dinner", "Dessert"].map((mealType) => {
-              const plannedMeal = getPlannedMeal(day, mealType);
-              return (
-                <div key={mealType} className="mb-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">{mealType}</span>
-                    <button
-                      onClick={() => openAddMealDialog(day, mealType)}
-                      className="bg-blue-500 text-white px-2 py-1 rounded"
-                    >
-                      Add Meal
-                    </button>
-                  </div>
-                  <div className="mt-2">
-                    {plannedMeal &&
-                      plannedMeal.recipes.map((recipe) => (
-                        <div
-                          key={recipe._id}
-                          className="flex justify-between items-center"
-                        >
-                          <Link
-                            href={`/recipes/${recipe.slug?.current ?? "#"}`}
-                          >
-                            <span className="text-blue-600">{recipe.name}</span>
-                          </Link>
-
-                          <button
-                            onClick={() =>
-                              handleRemoveMeal(plannedMeal._id, recipe._id)
-                            }
-                            className="text-red-500"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <h2 className="text-2xl font-semibold mb-4">
-          Add Meal for {selectedDay} - {selectedMealType}
-        </h2>
-        <select
-          value={selectedRecipeId ?? ""}
-          onChange={(e) => setSelectedRecipeId(e.target.value)}
-          className="bg-white border border-gray-300 rounded px-4 py-2 mb-4"
-        >
-          <option value="" disabled>
-            Select a recipe
-          </option>
-          {recipes
-            .filter((recipe) => {
-              // Check if recipe is already selected for the current day and meal type
-              const existingMeal = plannedMeals.find(
-                (meal) =>
-                  meal.day === selectedDay && meal.mealType === selectedMealType
-              );
-              if (existingMeal) {
-                return !existingMeal.recipes.some((r) => r._id === recipe._id);
-              }
-              return true; // Show all recipes if no existing meal found
-            })
-            .map((recipe) => (
-              <option key={recipe._id} value={recipe._id}>
-                {recipe.name}
-              </option>
-            ))}
-        </select>
-
-        <button
-          onClick={handleAddMeal}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Add Meal
-        </button>
-      </Modal>
-
-      <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4">Grocery List</h2>
+    <div className="grid xl:grid-cols-4 gap-8">
+      <div className="max-w-2xl">
+        <h2 className="text-4xl font-bold mb-8">Grocery List</h2>
         <div>
           <label className="block text-lg mb-2">Select Days:</label>
           <div className="flex flex-wrap gap-2 mb-4">
@@ -451,6 +363,97 @@ export default function MealPlannerPage() {
           ))}
         </ul>
       </div>
+      <div className="max-w-4xl col-span-2">
+        <h2 className="text-4xl font-bold mb-8">Meal Planner</h2>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {daysOfWeek.map((day) => (
+            <div key={day} className="bg-white shadow rounded-lg p-6">
+              <h3 className="text-xl font-semibold mb-4">{day}</h3>
+              {["Breakfast", "Lunch", "Dinner", "Dessert"].map((mealType) => {
+                const plannedMeal = getPlannedMeal(day, mealType);
+                return (
+                  <div key={mealType} className="mb-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-semibold">{mealType}</span>
+                      <button
+                        onClick={() => openAddMealDialog(day, mealType)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded"
+                      >
+                        Add Meal
+                      </button>
+                    </div>
+                    <div className="mt-2">
+                      {plannedMeal &&
+                        plannedMeal.recipes.map((recipe) => (
+                          <div
+                            key={recipe._id}
+                            className="flex justify-between items-center"
+                          >
+                            <Link
+                              href={`/recipes/${recipe.slug?.current ?? "#"}`}
+                            >
+                              <span className="text-blue-600">
+                                {recipe.name}
+                              </span>
+                            </Link>
+
+                            <button
+                              onClick={() =>
+                                handleRemoveMeal(plannedMeal._id, recipe._id)
+                              }
+                              className="text-red-500"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h2 className="text-2xl font-semibold mb-4">
+          Add Meal for {selectedDay} - {selectedMealType}
+        </h2>
+        <select
+          value={selectedRecipeId ?? ""}
+          onChange={(e) => setSelectedRecipeId(e.target.value)}
+          className="bg-white border border-gray-300 rounded px-4 py-2 mb-4"
+        >
+          <option value="" disabled>
+            Select a recipe
+          </option>
+          {recipes
+            .filter((recipe) => {
+              // Check if recipe is already selected for the current day and meal type
+              const existingMeal = plannedMeals.find(
+                (meal) =>
+                  meal.day === selectedDay && meal.mealType === selectedMealType
+              );
+              if (existingMeal) {
+                return !existingMeal.recipes.some((r) => r._id === recipe._id);
+              }
+              return true; // Show all recipes if no existing meal found
+            })
+            .map((recipe) => (
+              <option key={recipe._id} value={recipe._id}>
+                {recipe.name}
+              </option>
+            ))}
+        </select>
+
+        <button
+          onClick={handleAddMeal}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Add Meal
+        </button>
+      </Modal>
     </div>
   );
 }
