@@ -59,7 +59,7 @@ export default async function RecipePage({
   return (
     <main className="container mx-auto grid gap-12 p-12">
       <div className="mb-4">
-        <Link href="/">← Back to recipes</Link>
+        <Link href="/">← Back to dashboard</Link>
       </div>
       {/* <div className="grid items-top gap-12 sm:grid-cols-2"> */}
       {/* <Image
@@ -76,17 +76,9 @@ export default async function RecipePage({
           ) : null}
           {description ? <p className="text-gray-500">{description}</p> : null}
           <div className="flex lg:flex-row flex-col gap-8">
-            <div>
-              <h2 className="text-2xl font-semibold">Steps</h2>
-              {body && body.length > 0 && (
-                <div className="prose max-w-none">
-                  <PortableText value={body} />
-                </div>
-              )}
-            </div>
-            <div className="min-w-96 border border-gray-100 rounded-3xl p-4 shadow-md">
-              <h2 className="text-2xl font-semibold">Ingredients</h2>
-              <ul className="list-disc pl-5">
+            <div className="border border-green-100 rounded-3xl p-8 bg-green-50">
+              <h2 className="font-semibold">Ingredients</h2>
+              <ul className="list-disc pl-5 text-sm">
                 {ingredients.map((ingredient) => (
                   <li key={ingredient._key}>
                     {ingredient.ingredient.name} - {ingredient.amount}{" "}
@@ -94,6 +86,14 @@ export default async function RecipePage({
                   </li>
                 ))}
               </ul>
+            </div>
+            <div className="border border-gray-100  rounded-3xl p-8">
+              <h2 className="font-semibold">Steps</h2>
+              {body && body.length > 0 && (
+                <div className="prose max-w-none">
+                  <PortableText value={body} />
+                </div>
+              )}
             </div>
           </div>
         </div>
