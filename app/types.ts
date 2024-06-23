@@ -24,6 +24,7 @@ export interface RecipeIngredient {
 
 export interface Recipe {
   _id: string;
+  _key: string;
   name: string;
   slug: { current: string };
   description: string;

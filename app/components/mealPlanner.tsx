@@ -394,55 +394,109 @@ export default function MealPlannerPage() {
       </div>
       <div className="col-span-4">
         <h2 className="text-4xl font-bold mb-8">Meal Planner</h2>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {daysOfWeek.map((day) => (
-            <div key={day} className="bg-white shadow rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-4">{day}</h3>
-              {["Breakfast", "Lunch", "Dinner", "Dessert"].map((mealType) => {
-                const plannedMeal = getPlannedMeal(day, mealType);
-                return (
-                  <div key={mealType} className="mb-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">{mealType}</span>
-                      <button
-                        onClick={() => openAddMealDialog(day, mealType)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded"
-                      >
-                        Add Meal
-                      </button>
-                    </div>
-                    <div className="mt-2">
-                      {plannedMeal &&
-                        plannedMeal.recipes.map((recipe) => (
-                          <div
-                            key={recipe._id}
-                            className="flex justify-between items-center"
-                          >
-                            <Link
-                              href={`/recipes/${recipe.slug?.current ?? "#"}`}
-                            >
-                              <span className="text-blue-600">
-                                {recipe.name}
-                              </span>
-                            </Link>
-
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="bg-gray-100 text-sm text-left">
+                <th className="px-4 py-2">Day</th>
+                <th className="px-4 py-2">Breakfast</th>
+                <th className="px-4 py-2">Lunch</th>
+                <th className="px-4 py-2">Dinner</th>
+                <th className="px-4 py-2">Dessert</th>
+              </tr>
+            </thead>
+            <tbody>
+              {daysOfWeek.map((day) => (
+                <tr key={day}>
+                  <td className="px-4 py-2 font-semibold">{day}</td>
+                  {["Breakfast", "Lunch", "Dinner", "Dessert"].map(
+                    (mealType) => {
+                      const plannedMeal = getPlannedMeal(day, mealType);
+                      return (
+                        <td key={mealType} className="px-4 py-2">
+                          <div className="flex flex-col gap-2">
+                            {plannedMeal ? (
+                              plannedMeal.recipes.map((recipe) => (
+                                <div
+                                  key={recipe._id}
+                                  className="flex justify-between items-center"
+                                >
+                                  <Link
+                                    href={`/recipes/${recipe.slug?.current ?? "#"}`}
+                                  >
+                                    <span className="text-blue-600">
+                                      {recipe.name}
+                                    </span>
+                                  </Link>
+                                  <button
+                                    onClick={() =>
+                                      handleRemoveMeal(
+                                        plannedMeal._id,
+                                        recipe._id
+                                      )
+                                    }
+                                    className="text-red-500"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              ))
+                            ) : (
+                              <span>No meal planned</span>
+                            )}
                             <button
-                              onClick={() =>
-                                handleRemoveMeal(plannedMeal._id, recipe._id)
-                              }
-                              className="text-red-500"
+                              onClick={() => openAddMealDialog(day, mealType)}
+                              className="bg-blue-500 text-white px-2 py-1 rounded mt-2"
                             >
-                              Remove
+                              Add Meal
                             </button>
                           </div>
-                        ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                        </td>
+                      );
+                    }
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-gray-100 text-sm text-left">
+              <th className="px-4 py-2"></th>
+              <th className="pr-4 py-2">Ingredient</th>
+              <th className="px-4 py-2">Amount</th>
+              <th className="px-4 py-2">Shop</th>
+            </tr>
+          </thead>
+          <tbody>
+            {groceryList.map((ingredient) => (
+              <tr
+                className="text-xs"
+                key={`${ingredient.ingredient._id}-${ingredient.unit._id}`}
+              >
+                <td className="px-4 py-2 m-auto pb-1">
+                  <input type="checkbox" />
+                </td>
+                <td className="pr-4 py-2">
+                  {ingredient.ingredientName}
+                  {ingredient.isStock && " (V)"}
+                </td>
+                <td className="px-4 py-2">
+                  {ingredient.amount} {ingredient.unit.value}
+                </td>
+                <td className="px-4 py-2">
+                  {ingredient.shopName && ingredient.shopName !== "No Shop"
+                    ? ingredient.shopName
+                    : ""}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
