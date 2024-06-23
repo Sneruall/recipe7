@@ -408,7 +408,7 @@ export default function MealPlannerPage() {
             <tbody>
               {daysOfWeek.map((day) => (
                 <tr key={day}>
-                  <td className="px-4 py-2 font-semibold">{day}</td>
+                  <td className="px-4 py-2 font-semibold align-top">{day}</td>
                   {["Breakfast", "Lunch", "Dinner", "Dessert"].map(
                     (mealType) => {
                       const plannedMeal = getPlannedMeal(day, mealType);
@@ -446,9 +446,9 @@ export default function MealPlannerPage() {
                             )}
                             <button
                               onClick={() => openAddMealDialog(day, mealType)}
-                              className="bg-blue-500 text-white px-2 py-1 rounded mt-2"
+                              className="px-2 py-1 rounded mt-2 text-right"
                             >
-                              Add Meal
+                              Add
                             </button>
                           </div>
                         </td>
