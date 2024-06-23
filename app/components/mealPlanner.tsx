@@ -29,7 +29,15 @@ function Modal({ isOpen, onClose, children }: ModalProps) {
 }
 
 export default function MealPlannerPage() {
-  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
   const [plannedMeals, setPlannedMeals] = useState<PlannedMeal[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
@@ -406,57 +414,69 @@ export default function MealPlannerPage() {
               </tr>
             </thead>
             <tbody>
-              {daysOfWeek.map((day) => (
-                <tr key={day}>
-                  <td className="px-4 py-2 font-semibold align-top">{day}</td>
-                  {["Breakfast", "Lunch", "Dinner", "Dessert"].map(
-                    (mealType) => {
-                      const plannedMeal = getPlannedMeal(day, mealType);
-                      return (
-                        <td key={mealType} className="px-4 py-2">
-                          <div className="flex flex-col gap-2">
-                            {plannedMeal ? (
-                              plannedMeal.recipes.map((recipe) => (
-                                <div
-                                  key={recipe._id}
-                                  className="flex justify-between items-center"
-                                >
-                                  <Link
-                                    href={`/recipes/${recipe.slug?.current ?? "#"}`}
+              {daysOfWeek.map((day, index) => {
+                const isCurrentDay =
+                  new Date().toLocaleDateString("en-US", {
+                    weekday: "long",
+                  }) === day;
+                const rowClass = isCurrentDay
+                  ? "bg-green-100"
+                  : index % 2 === 0
+                    ? "bg-gray-100"
+                    : "bg-gray-200";
+
+                return (
+                  <tr key={day} className={rowClass}>
+                    <td className="px-4 py-2 font-semibold align-top">{day}</td>
+                    {["Breakfast", "Lunch", "Dinner", "Dessert"].map(
+                      (mealType) => {
+                        const plannedMeal = getPlannedMeal(day, mealType);
+                        return (
+                          <td key={mealType} className="px-4 py-2">
+                            <div className="flex flex-col gap-2">
+                              {plannedMeal ? (
+                                plannedMeal.recipes.map((recipe) => (
+                                  <div
+                                    key={recipe._id}
+                                    className="flex justify-between items-center"
                                   >
-                                    <span className="text-blue-600">
-                                      {recipe.name}
-                                    </span>
-                                  </Link>
-                                  <button
-                                    onClick={() =>
-                                      handleRemoveMeal(
-                                        plannedMeal._id,
-                                        recipe._id
-                                      )
-                                    }
-                                    className="text-red-500"
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
-                              ))
-                            ) : (
-                              <span>No meal planned</span>
-                            )}
-                            <button
-                              onClick={() => openAddMealDialog(day, mealType)}
-                              className="px-2 py-1 rounded mt-2 text-right"
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </td>
-                      );
-                    }
-                  )}
-                </tr>
-              ))}
+                                    <Link
+                                      href={`/recipes/${recipe.slug?.current ?? "#"}`}
+                                    >
+                                      <span className="text-blue-600">
+                                        {recipe.name}
+                                      </span>
+                                    </Link>
+                                    <button
+                                      onClick={() =>
+                                        handleRemoveMeal(
+                                          plannedMeal._id,
+                                          recipe._id
+                                        )
+                                      }
+                                      className="text-red-500"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                ))
+                              ) : (
+                                <span>No meal planned</span>
+                              )}
+                              <button
+                                onClick={() => openAddMealDialog(day, mealType)}
+                                className="px-2 py-1 rounded mt-2 text-right"
+                              >
+                                Add
+                              </button>
+                            </div>
+                          </td>
+                        );
+                      }
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
