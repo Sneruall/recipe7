@@ -314,7 +314,7 @@ export default function MealPlannerPage() {
 
   return (
     <div className="grid xl:grid-cols-6 gap-16">
-      <div className="col-span-2 border border-gray-100 rounded-3xl p-4 ">
+      <div className="col-span-2 border border-gray-100 rounded-3xl p-4 shadow-md">
         <h2 className="text-xl font-bold mb-8">Grocery List</h2>
         <div>
           <label className="block mb-2">Select Days:</label>
