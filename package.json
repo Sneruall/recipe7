@@ -10,6 +10,7 @@
     "updatesanity": "npx sanity deploy"
   },
   "dependencies": {
+    "@heroicons/react": "^2.1.4",
     "@prisma/client": "^5.15.0",
     "@sanity/client": "^6.20.0",
     "@sanity/image-url": "^1.0.2",

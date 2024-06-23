@@ -5,6 +5,7 @@ import Link from "next/link";
 import { sanityFetch, client } from "../../utils/sanity/client";
 import { Recipe, PlannedMeal, RecipeIngredient } from "../types";
 import { v4 as uuidv4 } from "uuid"; // Import uuid
+import { MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/16/solid";
 
 interface ModalProps {
   isOpen: boolean;
@@ -456,19 +457,25 @@ export default function MealPlannerPage() {
                                       }
                                       className="text-red-500"
                                     >
-                                      Remove
+                                      <MinusCircleIcon className="size-6" />
                                     </button>
                                   </div>
                                 ))
                               ) : (
-                                <span>No meal planned</span>
+                                <span className="text-gray-400">
+                                  No meal planned
+                                </span>
                               )}
-                              <button
-                                onClick={() => openAddMealDialog(day, mealType)}
-                                className="px-2 py-1 rounded mt-2 text-right"
-                              >
-                                Add
-                              </button>
+                              <div className="">
+                                <button
+                                  onClick={() =>
+                                    openAddMealDialog(day, mealType)
+                                  }
+                                  className=""
+                                >
+                                  <PlusCircleIcon className="size-6 text-green-500" />
+                                </button>
+                              </div>
                             </div>
                           </td>
                         );
