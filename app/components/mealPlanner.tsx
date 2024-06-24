@@ -364,7 +364,7 @@ export default function MealPlannerPage() {
             ))}
           </select>
         </div>
-        <div className="overflow-x-auto">
+        <div className="">
           <table className="min-w-full">
             <thead>
               <tr className="bg-gray-100 text-sm text-left">
@@ -401,10 +401,10 @@ export default function MealPlannerPage() {
           </table>
         </div>
       </div>
-      <div className="col-span-4">
+      <div className="lg:col-span-4">
         <h2 className="text-4xl font-bold mb-8">Meal Planner</h2>
         <div className="overflow-x-auto">
-          <table className="min-w-full">
+          <table className="min-w-full hidden lg:table">
             <thead>
               <tr className="bg-gray-100 text-sm text-left">
                 <th className="px-4 py-2">Day</th>
@@ -466,7 +466,7 @@ export default function MealPlannerPage() {
                                   No meal planned
                                 </span>
                               )}
-                              <div className="">
+                              <div>
                                 <button
                                   onClick={() =>
                                     openAddMealDialog(day, mealType)
@@ -486,10 +486,84 @@ export default function MealPlannerPage() {
               })}
             </tbody>
           </table>
+
+          {/* Responsive layout for small screens */}
+          <div className="lg:hidden">
+            {daysOfWeek.map((day, index) => {
+              const isCurrentDay =
+                new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                }) === day;
+              const rowClass = isCurrentDay
+                ? "bg-green-100"
+                : index % 2 === 0
+                  ? "bg-gray-100"
+                  : "bg-gray-200";
+
+              return (
+                <div key={day} className={`mb-4 p-4 ${rowClass} rounded-lg`}>
+                  <h3 className="text-xl font-semibold mb-2">{day}</h3>
+                  {["Breakfast", "Lunch", "Dinner", "Dessert"].map(
+                    (mealType) => {
+                      const plannedMeal = getPlannedMeal(day, mealType);
+                      return (
+                        <div key={mealType} className="mb-4">
+                          <div className="flex justify-between items-center">
+                            <span className="text-lg font-semibold">
+                              {mealType}
+                            </span>
+                            <button
+                              onClick={() => openAddMealDialog(day, mealType)}
+                              className="bg-blue-500 text-white px-2 py-1 rounded"
+                            >
+                              Add Meal
+                            </button>
+                          </div>
+                          <div className="mt-2">
+                            {plannedMeal ? (
+                              plannedMeal.recipes.map((recipe) => (
+                                <div
+                                  key={recipe._id}
+                                  className="flex justify-between items-center"
+                                >
+                                  <Link
+                                    href={`/recipes/${recipe.slug?.current ?? "#"}`}
+                                  >
+                                    <span className="text-blue-600">
+                                      {recipe.name}
+                                    </span>
+                                  </Link>
+                                  <button
+                                    onClick={() =>
+                                      handleRemoveMeal(
+                                        plannedMeal._id,
+                                        recipe._id
+                                      )
+                                    }
+                                    className="text-red-500"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              ))
+                            ) : (
+                              <span className="text-gray-400">
+                                No meal planned
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* <div className="overflow-x-auto">
         <table className="min-w-full">
           <thead>
             <tr className="bg-gray-100 text-sm text-left">
@@ -524,7 +598,7 @@ export default function MealPlannerPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </div> */}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h2 className="text-2xl font-semibold mb-4">
