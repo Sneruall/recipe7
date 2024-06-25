@@ -6,28 +6,7 @@ import { sanityFetch, client } from "../../utils/sanity/client";
 import { Recipe, PlannedMeal, RecipeIngredient } from "../types";
 import { v4 as uuidv4 } from "uuid"; // Import uuid
 import { MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/16/solid";
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  children: ReactNode;
-}
-
-// Modal component
-function Modal({ isOpen, onClose, children }: ModalProps) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-8 rounded shadow-md">
-        <button onClick={onClose} className="absolute top-2 right-2 text-xl">
-          &times;
-        </button>
-        {children}
-      </div>
-    </div>
-  );
-}
+import { Modal } from "./Modal";
 
 export default function MealPlannerPage() {
   const daysOfWeek = [
