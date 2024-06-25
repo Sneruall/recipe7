@@ -7,6 +7,7 @@ import { Recipe, PlannedMeal, RecipeIngredient } from "../types";
 import { v4 as uuidv4 } from "uuid"; // Import uuid
 import { MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/16/solid";
 import { Modal } from "./Modal";
+import SelectRecipe from "./SelectRecipe";
 
 export default function MealPlannerPage() {
   const daysOfWeek = [
@@ -542,80 +543,16 @@ export default function MealPlannerPage() {
         </div>
       </div>
 
-      {/* <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
-            <tr className="bg-gray-100 text-sm text-left">
-              <th className="px-4 py-2"></th>
-              <th className="pr-4 py-2">Ingredient</th>
-              <th className="px-4 py-2">Amount</th>
-              <th className="px-4 py-2">Shop</th>
-            </tr>
-          </thead>
-          <tbody>
-            {groceryList.map((ingredient) => (
-              <tr
-                className="text-xs"
-                key={`${ingredient.ingredient._id}-${ingredient.unit._id}`}
-              >
-                <td className="px-4 py-2 m-auto pb-1">
-                  <input type="checkbox" />
-                </td>
-                <td className="pr-4 py-2">
-                  {ingredient.ingredientName}
-                  {ingredient.isStock && " (V)"}
-                </td>
-                <td className="px-4 py-2">
-                  {ingredient.amount} {ingredient.unit.value}
-                </td>
-                <td className="px-4 py-2">
-                  {ingredient.shopName && ingredient.shopName !== "No Shop"
-                    ? ingredient.shopName
-                    : ""}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div> */}
-
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <h2 className="text-2xl font-semibold mb-4">
-          Add Meal for {selectedDay} - {selectedMealType}
-        </h2>
-        <select
-          value={selectedRecipeId ?? ""}
-          onChange={(e) => setSelectedRecipeId(e.target.value)}
-          className="bg-white border border-gray-300 rounded px-4 py-2 mb-4"
-        >
-          <option value="" disabled>
-            Select a recipe
-          </option>
-          {recipes
-            .filter((recipe) => {
-              // Check if recipe is already selected for the current day and meal type
-              const existingMeal = plannedMeals.find(
-                (meal) =>
-                  meal.day === selectedDay && meal.mealType === selectedMealType
-              );
-              if (existingMeal) {
-                return !existingMeal.recipes.some((r) => r._id === recipe._id);
-              }
-              return true; // Show all recipes if no existing meal found
-            })
-            .map((recipe) => (
-              <option key={recipe._id} value={recipe._id}>
-                {recipe.name}
-              </option>
-            ))}
-        </select>
-
-        <button
-          onClick={handleAddMeal}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Add Meal
-        </button>
+        <SelectRecipe
+          handleAddMeal={handleAddMeal}
+          plannedMeals={plannedMeals}
+          recipes={recipes}
+          selectedDay={selectedDay}
+          selectedMealType={selectedMealType}
+          selectedRecipeId={selectedRecipeId}
+          setSelectedRecipeId={setSelectedRecipeId}
+        />
       </Modal>
     </div>
   );
