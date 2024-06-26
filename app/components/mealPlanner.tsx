@@ -1,4 +1,3 @@
-// mealPlanner.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -178,22 +177,25 @@ export default function MealPlannerPage() {
         return;
       }
 
-      const updatedRecipes = existingMeal.recipes.filter(
-        (recipe) => recipe._id !== recipeId
-      );
-
-      await client.patch(mealId).set({ recipes: updatedRecipes }).commit();
-
-      setPlannedMeals((prevMeals) =>
-        prevMeals.map((meal) =>
-          meal._id === mealId ? { ...meal, recipes: updatedRecipes } : meal
-        )
-      );
+      const updatedRecipes = existingMeal.recipes
+        .filter((recipe) => recipe._id !== recipeId)
+        .map((recipe) => ({
+          _type: "reference", // Ensure the recipe is stored as a reference
+          _ref: recipe._id,
+          _key: recipe._key ?? uuidv4(), // Ensure each recipe has a _key if it doesn't exist
+        }));
 
       if (updatedRecipes.length === 0) {
         await client.delete(mealId);
         setPlannedMeals((prevMeals) =>
           prevMeals.filter((meal) => meal._id !== mealId)
+        );
+      } else {
+        await client.patch(mealId).set({ recipes: updatedRecipes }).commit();
+        setPlannedMeals((prevMeals) =>
+          prevMeals.map((meal) =>
+            meal._id === mealId ? { ...meal, recipes: updatedRecipes } : meal
+          )
         );
       }
     } catch (error) {
@@ -292,58 +294,52 @@ export default function MealPlannerPage() {
 
             return (
               <div key={day} className="bg-white p-4 shadow rounded-lg">
-                <div
-                  className={`text-lg font-semibold ${isCurrentDay ? "text-green-500" : ""}`}
+                <h3
+                  className={`text-lg font-semibold mb-2 ${
+                    isCurrentDay ? "text-green-600" : ""
+                  }`}
                 >
                   {day}
-                </div>
-                <div className="flex flex-col gap-2">
-                  {getPlannedMeal(day)?.recipes.map((recipe) => (
-                    <div
-                      key={recipe._id}
-                      className="flex justify-between items-center"
+                </h3>
+                {getPlannedMeal(day)?.recipes.map((recipe) => (
+                  <div
+                    key={recipe._id}
+                    className="flex justify-between items-center mb-1"
+                  >
+                    <Link href={`/recipes/${recipe.slug?.current ?? "#"}`}>
+                      <span className="text-blue-600">{recipe.name}</span>
+                    </Link>
+                    <button
+                      onClick={() =>
+                        handleRemoveMeal(getPlannedMeal(day)._id, recipe._id)
+                      }
+                      className="text-red-500"
                     >
-                      <Link href={`/recipes/${recipe.slug?.current ?? "#"}`}>
-                        <span className="text-blue-600">{recipe.name}</span>
-                      </Link>
-                      <button
-                        onClick={() =>
-                          handleRemoveMeal(getPlannedMeal(day)._id, recipe._id)
-                        }
-                        className="text-red-500"
-                      >
-                        <MinusCircleIcon className="h-6 w-6" />
-                      </button>
-                    </div>
-                  )) ?? <span className="text-gray-400">No meals planned</span>}
-                  <div>
-                    <button onClick={() => openAddMealDialog(day)}>
-                      <PlusCircleIcon className="h-6 w-6 text-green-500" />
+                      <MinusCircleIcon className="size-6" />
                     </button>
                   </div>
+                )) ?? <span className="text-gray-400">No meals planned</span>}
+                <div>
+                  <button onClick={() => openAddMealDialog(day)}>
+                    <PlusCircleIcon className="h-6 w-6 text-green-500" />
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <SelectRecipe
-          recipes={recipes}
-          handleAddMeal={handleAddMeal}
-          selectedRecipeId={selectedRecipeId}
-          setSelectedRecipeId={setSelectedRecipeId}
-          selectedDay={selectedDay}
-        />
-        <div className="flex justify-end">
-          <button
-            onClick={handleAddMeal}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-          >
-            Add Meal
-          </button>
-        </div>
-      </Modal>
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <SelectRecipe
+            recipes={recipes}
+            handleAddMeal={handleAddMeal}
+            selectedRecipeId={selectedRecipeId}
+            setSelectedRecipeId={setSelectedRecipeId}
+            selectedDay={selectedDay}
+          />
+        </Modal>
+      )}
     </div>
   );
 }
