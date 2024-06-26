@@ -3,27 +3,23 @@ import { Recipe, PlannedMeal } from "../types";
 
 type Props = {
   selectedDay: string | null;
-  selectedMealType: string | null;
   selectedRecipeId: string | null;
   setSelectedRecipeId: (id: string | null) => void;
   recipes: Recipe[];
-  plannedMeals: PlannedMeal[];
   handleAddMeal: () => void;
 };
 
 function SelectRecipe({
   selectedDay,
-  selectedMealType,
+  recipes,
+  handleAddMeal,
   selectedRecipeId,
   setSelectedRecipeId,
-  recipes,
-  plannedMeals,
-  handleAddMeal,
 }: Props) {
   return (
     <>
       <h2 className="text-2xl font-semibold mb-4">
-        Add Meal for {selectedDay} - {selectedMealType}
+        Add Meal for {selectedDay}
       </h2>
       <select
         value={selectedRecipeId ?? ""}
@@ -33,23 +29,11 @@ function SelectRecipe({
         <option value="" disabled>
           Select a recipe
         </option>
-        {recipes
-          .filter((recipe) => {
-            // Check if recipe is already selected for the current day and meal type
-            const existingMeal = plannedMeals.find(
-              (meal) =>
-                meal.day === selectedDay && meal.mealType === selectedMealType
-            );
-            if (existingMeal) {
-              return !existingMeal.recipes.some((r) => r._id === recipe._id);
-            }
-            return true; // Show all recipes if no existing meal found
-          })
-          .map((recipe) => (
-            <option key={recipe._id} value={recipe._id}>
-              {recipe.name}
-            </option>
-          ))}
+        {recipes.map((recipe) => (
+          <option key={recipe._id} value={recipe._id}>
+            {recipe.name}
+          </option>
+        ))}
       </select>
 
       <button

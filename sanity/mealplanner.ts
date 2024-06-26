@@ -24,20 +24,11 @@ export const plannedMeal = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "mealType",
-      title: "Meal Type",
-      type: "string",
-      options: {
-        list: ["Breakfast", "Lunch", "Dinner", "Dessert"],
-      },
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
       name: "recipes",
       title: "Recipes",
       type: "array",
       of: [{ type: "reference", to: [{ type: "recipe" }] }],
-      validation: (Rule) => Rule.min(1).required(),
+      validation: (Rule) => Rule.required(),
     }),
   ],
 });
