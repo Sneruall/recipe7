@@ -117,17 +117,39 @@ export default function MealPlannerPage() {
             { _type: "reference", _ref: selectedRecipe._id, _key: uuidv4() },
           ])
           .commit();
+
+        // Fetch the updated meal to ensure amounts are updated
+        const updatedMeal = await sanityFetch<PlannedMeal>({
+          query: `*[_id == "${existingMeal._id}"]{
+            _id,
+            day,
+            recipes[]->{
+              _id,
+              name,
+              slug,
+              ingredients[]{
+                ingredient->{
+                  _id,
+                  name,
+                  shop->{
+                    _id,
+                    name
+                  }
+                },
+                unit->{
+                  _id,
+                  name,
+                  value
+                },
+                amount
+              }
+            }
+          }[0]`,
+        });
+
         setPlannedMeals((prevMeals) =>
           prevMeals.map((meal) =>
-            meal._id === existingMeal._id
-              ? {
-                  ...meal,
-                  recipes: [
-                    ...meal.recipes,
-                    { ...selectedRecipe, _key: uuidv4() },
-                  ],
-                }
-              : meal
+            meal._id === existingMeal._id ? updatedMeal : meal
           )
         );
       } catch (error) {
