@@ -32,21 +32,28 @@ function GroceryList({ plannedMeals, recipes }: Props) {
                 const shopName = ingredient.ingredient.shop?.name ?? "No Shop";
                 const isStock = ingredient.ingredient.isStock;
 
-                if (
-                  (!selectedShop || shopName === selectedShop) &&
-                  !ingredientsMap[key]
-                ) {
+                // Ensure amount is always a valid number
+                const amount =
+                  typeof ingredient.amount === "number" ? ingredient.amount : 0;
+
+                if (!ingredientsMap[key]) {
                   ingredientsMap[key] = {
                     ...ingredient,
                     ingredientName: ingredient.ingredient.name,
                     shopName: shopName,
                     isStock: isStock,
+                    amount: amount, // Initialize with the valid amount
                   };
-                } else if (
-                  ingredientsMap[key] &&
-                  (!selectedShop || shopName === selectedShop)
-                ) {
-                  ingredientsMap[key].amount += ingredient.amount;
+                } else {
+                  if (typeof ingredientsMap[key].amount === "number") {
+                    ingredientsMap[key].amount += amount;
+                  } else {
+                    console.error(
+                      "Non-numeric amount detected",
+                      ingredientsMap[key],
+                      ingredient
+                    );
+                  }
                 }
               });
           });

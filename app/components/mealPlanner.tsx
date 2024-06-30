@@ -97,10 +97,18 @@ export default function MealPlannerPage() {
       return;
     }
 
+    // Validate and sanitize amounts in the selected recipe
+    selectedRecipe.ingredients = selectedRecipe.ingredients.map(
+      (ingredient) => ({
+        ...ingredient,
+        amount: typeof ingredient.amount === "number" ? ingredient.amount : 0,
+      })
+    );
+
     const existingMeal = plannedMeals.find((meal) => meal.day === selectedDay);
 
     if (existingMeal) {
-      // Update existing planned meal (the day already has one or more meals assigned)
+      console.log("Existing meal found for the day:", existingMeal);
       try {
         await client
           .patch(existingMeal._id)
@@ -112,7 +120,13 @@ export default function MealPlannerPage() {
         setPlannedMeals((prevMeals) =>
           prevMeals.map((meal) =>
             meal._id === existingMeal._id
-              ? { ...meal, recipes: [...meal.recipes, selectedRecipe] }
+              ? {
+                  ...meal,
+                  recipes: [
+                    ...meal.recipes,
+                    { ...selectedRecipe, _key: uuidv4() },
+                  ],
+                }
               : meal
           )
         );
@@ -120,7 +134,6 @@ export default function MealPlannerPage() {
         console.error("Error updating planned meal:", (error as Error).message);
       }
     } else {
-      // Create new planned meal (the day did not have anything assigned yet)
       const newPlannedMeal = {
         _id: `plannedMeal_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
         _type: "plannedMeal",
