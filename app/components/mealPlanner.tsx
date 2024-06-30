@@ -177,21 +177,28 @@ export default function MealPlannerPage() {
         return;
       }
 
-      const updatedRecipes = existingMeal.recipes
-        .filter((recipe) => recipe._id !== recipeId)
-        .map((recipe) => ({
-          _type: "reference", // Ensure the recipe is stored as a reference
-          _ref: recipe._id,
-          _key: recipe._key ?? uuidv4(), // Ensure each recipe has a _key if it doesn't exist
-        }));
+      // Filter out the recipe to be removed
+      const updatedRecipes = existingMeal.recipes.filter(
+        (recipe) => recipe._id !== recipeId
+      );
 
       if (updatedRecipes.length === 0) {
+        // If no recipes left, delete the meal
         await client.delete(mealId);
         setPlannedMeals((prevMeals) =>
           prevMeals.filter((meal) => meal._id !== mealId)
         );
       } else {
-        await client.patch(mealId).set({ recipes: updatedRecipes }).commit();
+        // Update the meal with the remaining recipes
+        const updatedReferences = updatedRecipes.map((recipe) => ({
+          _type: "reference",
+          _ref: recipe._id,
+          _key: recipe._key ?? uuidv4(), // Ensure each reference has a unique key
+        }));
+
+        await client.patch(mealId).set({ recipes: updatedReferences }).commit();
+
+        // Update the state with full recipe objects
         setPlannedMeals((prevMeals) =>
           prevMeals.map((meal) =>
             meal._id === mealId ? { ...meal, recipes: updatedRecipes } : meal

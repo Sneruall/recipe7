@@ -42,7 +42,6 @@ export interface PlannedMeal {
   _id: string;
   _type: string;
   day: string;
-  mealType: string;
   recipes: Recipe[];
 }
 
