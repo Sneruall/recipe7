@@ -100,7 +100,7 @@ export default function MealPlannerPage() {
     const existingMeal = plannedMeals.find((meal) => meal.day === selectedDay);
 
     if (existingMeal) {
-      // Update existing planned meal
+      // Update existing planned meal (the day already has one or more meals assigned)
       try {
         await client
           .patch(existingMeal._id)
@@ -120,7 +120,7 @@ export default function MealPlannerPage() {
         console.error("Error updating planned meal:", (error as Error).message);
       }
     } else {
-      // Create new planned meal
+      // Create new planned meal (the day did not have anything assigned yet)
       const newPlannedMeal = {
         _id: `plannedMeal_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
         _type: "plannedMeal",
