@@ -16,7 +16,6 @@ export default function MealPlannerPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -280,12 +279,14 @@ export default function MealPlannerPage() {
                     ? "bg-gray-100"
                     : "bg-gray-200";
 
+                const plannedMeal = getPlannedMeal(day);
+
                 return (
                   <tr key={day} className={rowClass}>
                     <td className="px-4 py-2 font-semibold align-top">{day}</td>
                     <td className="px-4 py-2">
                       <div className="flex flex-col gap-2">
-                        {getPlannedMeal(day)?.recipes.map((recipe) => (
+                        {plannedMeal?.recipes?.map((recipe) => (
                           <div
                             key={recipe._id}
                             className="flex justify-between items-center"
@@ -299,10 +300,7 @@ export default function MealPlannerPage() {
                             </Link>
                             <button
                               onClick={() =>
-                                handleRemoveMeal(
-                                  getPlannedMeal(day)._id,
-                                  recipe._id
-                                )
+                                handleRemoveMeal(plannedMeal._id, recipe._id)
                               }
                               className="text-red-500"
                             >
@@ -334,6 +332,8 @@ export default function MealPlannerPage() {
                 weekday: "long",
               }) === day;
 
+            const plannedMeal = getPlannedMeal(day);
+
             return (
               <div key={day} className="bg-white p-4 shadow rounded-lg">
                 <h3
@@ -343,7 +343,7 @@ export default function MealPlannerPage() {
                 >
                   {day}
                 </h3>
-                {getPlannedMeal(day)?.recipes.map((recipe) => (
+                {plannedMeal?.recipes?.map((recipe) => (
                   <div
                     key={recipe._id}
                     className="flex justify-between items-center mb-1"
@@ -353,7 +353,7 @@ export default function MealPlannerPage() {
                     </Link>
                     <button
                       onClick={() =>
-                        handleRemoveMeal(getPlannedMeal(day)._id, recipe._id)
+                        handleRemoveMeal(plannedMeal._id, recipe._id)
                       }
                       className="text-red-500"
                     >
